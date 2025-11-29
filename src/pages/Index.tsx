@@ -1,12 +1,39 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import { Layout } from "@/components/Layout";
+import { Dashboard } from "@/components/Dashboard";
+import { DailyControl } from "@/components/DailyControl";
+import { WeeklyView } from "@/components/WeeklyView";
+import { MonthlyView } from "@/components/MonthlyView";
+import { Professionals } from "@/components/Professionals";
+import { ProsthesisSales } from "@/components/ProsthesisSales";
 
 const Index = () => {
+  const [activeTab, setActiveTab] = useState("dashboard");
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case "dashboard":
+        return <Dashboard />;
+      case "daily":
+        return <DailyControl />;
+      case "weekly":
+        return <WeeklyView />;
+      case "monthly":
+        return <MonthlyView />;
+      case "professionals":
+        return <Professionals />;
+      case "prosthesis":
+        return <ProsthesisSales />;
+      default:
+        return <Dashboard />;
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <Layout activeTab={activeTab} setActiveTab={setActiveTab}>
+        {renderContent()}
+      </Layout>
     </div>
   );
 };

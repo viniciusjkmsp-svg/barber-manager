@@ -11,24 +11,20 @@ const monthlyData = [
   { day: "26-31", entradas: 6200, saidas: 1800 },
 ];
 
-const servicesDistribution = [
-  { name: "Corte", value: 145 },
-  { name: "Barba", value: 95 },
-  { name: "Luzes", value: 62 },
-  { name: "Alisamento", value: 38 },
-  { name: "Botox", value: 28 },
-  { name: "Manicure", value: 75 },
+const salesDistribution = [
+  { name: "Serviços", value: 75 },
+  { name: "Produtos", value: 25 },
 ];
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8", "#82ca9d"];
+const COLORS = ["hsl(var(--success))", "hsl(var(--accent))"];
 
 export const MonthlyView = () => {
   const professionals = [
-    { name: "Marcos Macedo", initials: "MM", services: 42, revenue: "1.890,00", commission: "567,00", color: "bg-blue-600" },
-    { name: "Junior Silva", initials: "JS", services: 38, revenue: "1.520,00", commission: "456,00", color: "bg-green-600" },
-    { name: "Cristiano Marques", initials: "CM", services: 35, revenue: "1.575,00", commission: "472,50", color: "bg-cyan-600" },
-    { name: "Claudio Carvalho", initials: "CC", services: 30, revenue: "1.350,00", commission: "405,00", color: "bg-amber-600" },
-    { name: "Silvia Gomes", initials: "SG", services: 25, revenue: "2.250,00", commission: "675,00", color: "bg-red-600" },
+    { name: "Marcos Macedo", initials: "MM", services: 42, products: 28, revenue: "2.240,00", color: "bg-blue-600" },
+    { name: "Junior Silva", initials: "JS", services: 38, products: 35, revenue: "1.890,00", color: "bg-green-600" },
+    { name: "Cristiano Marques", initials: "CM", services: 35, products: 42, revenue: "2.100,00", color: "bg-cyan-600" },
+    { name: "Claudio Carvalho", initials: "CC", services: 30, products: 25, revenue: "1.625,00", color: "bg-amber-600" },
+    { name: "Silvia Gomes", initials: "SG", services: 25, products: 12, revenue: "2.340,00", color: "bg-red-600" },
   ];
 
   return (
@@ -79,8 +75,8 @@ export const MonthlyView = () => {
                   <tr className="border-b">
                     <th className="text-left py-3 px-4 font-semibold text-sm">Profissional</th>
                     <th className="text-left py-3 px-4 font-semibold text-sm">Serviços</th>
-                    <th className="text-left py-3 px-4 font-semibold text-sm">Faturamento</th>
-                    <th className="text-left py-3 px-4 font-semibold text-sm">Comissão</th>
+                    <th className="text-left py-3 px-4 font-semibold text-sm">Produtos Vendidos</th>
+                    <th className="text-left py-3 px-4 font-semibold text-sm">Faturamento Total</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -95,8 +91,8 @@ export const MonthlyView = () => {
                         </div>
                       </td>
                       <td className="py-3 px-4 text-sm">{prof.services}</td>
+                      <td className="py-3 px-4 text-sm">{prof.products}</td>
                       <td className="py-3 px-4 text-sm font-semibold">R$ {prof.revenue}</td>
-                      <td className="py-3 px-4 text-sm font-semibold">R$ {prof.commission}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -107,13 +103,13 @@ export const MonthlyView = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Distribuição de Serviços</CardTitle>
+            <CardTitle>Distribuição de Vendas</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={servicesDistribution}
+                  data={salesDistribution}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -122,7 +118,7 @@ export const MonthlyView = () => {
                   fill="#8884d8"
                   dataKey="value"
                 >
-                  {servicesDistribution.map((entry, index) => (
+                  {salesDistribution.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>

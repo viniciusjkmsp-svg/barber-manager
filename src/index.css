@@ -65,6 +65,12 @@ All colors MUST be HSL.
     --badge-luzes: 30 90% 55%;
     --badge-alisamento: 330 70% 55%;
     --badge-botox: 165 55% 50%;
+    --badge-bebida: 265 80% 50%;
+
+    /* Stock status */
+    --stock-ok: 150 60% 45%;
+    --stock-low: 45 90% 50%;
+    --stock-critical: 0 75% 55%;
   }
 }
 

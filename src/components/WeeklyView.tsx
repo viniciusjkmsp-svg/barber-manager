@@ -19,6 +19,16 @@ const professionalData = [
   { name: "Silvia", value: 7 },
 ];
 
+const productsWeeklyData = [
+  { day: "Seg", vendas: 45 },
+  { day: "Ter", vendas: 52 },
+  { day: "Qua", vendas: 68 },
+  { day: "Qui", vendas: 75 },
+  { day: "Sex", vendas: 92 },
+  { day: "Sáb", vendas: 110 },
+  { day: "Dom", vendas: 38 },
+];
+
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
 export const WeeklyView = () => {
@@ -75,22 +85,18 @@ export const WeeklyView = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Distribuição de Serviços</CardTitle>
+            <CardTitle>Vendas de Produtos</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {["Corte (35%)", "Barba (22%)", "Luzes (18%)", "Alisamento (12%)", "Outros (13%)"].map((item, idx) => (
-                <div key={idx} className="flex items-center justify-between">
-                  <span className="text-sm">{item}</span>
-                  <div className="w-2/3 bg-muted rounded-full h-2">
-                    <div
-                      className="bg-accent h-2 rounded-full"
-                      style={{ width: `${[35, 22, 18, 12, 13][idx]}%` }}
-                    ></div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={productsWeeklyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="day" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="vendas" fill="hsl(var(--accent))" name="Produtos Vendidos" />
+              </BarChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>

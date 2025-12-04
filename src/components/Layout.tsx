@@ -1,4 +1,4 @@
-import { Scissors, LayoutDashboard, Calendar, CalendarDays, CalendarRange, Users, ShoppingCart } from "lucide-react";
+import { Scissors, LayoutDashboard, Calendar, CalendarDays, CalendarRange, Users, ShoppingCart, Package } from "lucide-react";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -15,6 +15,7 @@ export const Layout = ({ children, activeTab, setActiveTab }: LayoutProps) => {
     { id: "monthly", label: "Visualização Mensal", icon: CalendarRange },
     { id: "professionals", label: "Cabeleireiros", icon: Users },
     { id: "prosthesis", label: "Vendas de Prótese", icon: ShoppingCart },
+    { id: "products", label: "Produtos & Estoque", icon: Package },
   ];
 
   return (

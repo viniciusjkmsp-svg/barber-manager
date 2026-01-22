@@ -1,5 +1,4 @@
-import { Scissors, LayoutDashboard, Calendar, CalendarDays, CalendarRange, Users, ShoppingCart, Package, CreditCard, CalendarPlus } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Scissors, LayoutDashboard, Calendar, CalendarDays, CalendarRange, Users, ShoppingCart, Package, CreditCard } from "lucide-react";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -30,20 +29,11 @@ export const Layout = ({ children, activeTab, setActiveTab }: LayoutProps) => {
               <Scissors className="w-6 h-6" />
               <span>Barbearia Estilo</span>
             </div>
-            <div className="flex items-center gap-4">
-              <Link
-                to="/agendamento"
-                className="flex items-center gap-2 bg-primary-foreground/20 hover:bg-primary-foreground/30 px-4 py-2 rounded-lg transition-colors font-medium"
-              >
-                <CalendarPlus className="w-5 h-5" />
-                <span>Agendar Agora</span>
-              </Link>
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-primary-foreground/20 flex items-center justify-center">
-                  <span className="text-sm">A</span>
-                </div>
-                <span className="text-sm">Administrador</span>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-primary-foreground/20 flex items-center justify-center">
+                <span className="text-sm">A</span>
               </div>
+              <span className="text-sm">Administrador</span>
             </div>
           </div>
         </div>

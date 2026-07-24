@@ -272,6 +272,19 @@ export const SubscriptionPlans = () => {
                   </Select>
                 </div>
                 <div>
+                  <Label>Profissional Responsável *</Label>
+                  <Select value={newSubscriber.professional} onValueChange={(v) => setNewSubscriber({...newSubscriber, professional: v})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o profissional" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PROFESSIONALS.map(prof => (
+                        <SelectItem key={prof} value={prof}>{prof}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
                   <Label>Data de Início *</Label>
                   <Input 
                     type="date"
@@ -279,9 +292,39 @@ export const SubscriptionPlans = () => {
                     onChange={(e) => setNewSubscriber({...newSubscriber, startDate: e.target.value})}
                   />
                 </div>
+
+                {/* Cálculo automático */}
+                {(() => {
+                  const plan = getPlanById(newSubscriber.planId);
+                  if (!plan) return null;
+                  const start = newSubscriber.startDate ? new Date(newSubscriber.startDate) : null;
+                  const next = start ? new Date(start) : null;
+                  if (next) next.setMonth(next.getMonth() + 1);
+                  const commissionRate = 0.5;
+                  const commission = plan.price * commissionRate;
+                  const houseShare = plan.price - commission;
+                  return (
+                    <div className="rounded-lg border bg-muted/40 p-3 space-y-1 text-sm">
+                      <div className="font-semibold mb-1">Resumo do Plano</div>
+                      <div className="flex justify-between"><span>Plano:</span><span>{plan.name}</span></div>
+                      <div className="flex justify-between"><span>Valor mensal:</span><span className="font-bold">R$ {plan.price.toFixed(2)}</span></div>
+                      {next && (
+                        <div className="flex justify-between"><span>Próximo pagamento:</span><span>{next.toLocaleDateString('pt-BR')}</span></div>
+                      )}
+                      {newSubscriber.professional && (
+                        <>
+                          <div className="flex justify-between"><span>Comissão {newSubscriber.professional} (50%):</span><span>R$ {commission.toFixed(2)}</span></div>
+                          <div className="flex justify-between"><span>Barbearia (50%):</span><span>R$ {houseShare.toFixed(2)}</span></div>
+                        </>
+                      )}
+                    </div>
+                  );
+                })()}
+
                 <Button className="w-full" onClick={handleAddSubscriber}>
                   Cadastrar Assinante
                 </Button>
+
               </div>
             </DialogContent>
           </Dialog>

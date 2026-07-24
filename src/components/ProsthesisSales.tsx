@@ -143,9 +143,10 @@ export const ProsthesisSales = () => {
                 <tr className="border-b">
                   <th className="text-left py-3 px-4 font-semibold text-sm">Data</th>
                   <th className="text-left py-3 px-4 font-semibold text-sm">Cliente</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Valor</th>
                   <th className="text-left py-3 px-4 font-semibold text-sm">Vendedor</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Comissão</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">Valor</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">Comissão Vendedor</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">Comissão Gestor</th>
                 </tr>
               </thead>
               <tbody>
@@ -153,9 +154,10 @@ export const ProsthesisSales = () => {
                   <tr key={idx} className="border-b hover:bg-muted/50 transition-colors">
                     <td className="py-3 px-4 text-sm">{sale.date}</td>
                     <td className="py-3 px-4 text-sm">{sale.client}</td>
-                    <td className="py-3 px-4 text-sm font-semibold">R$ {sale.value}</td>
                     <td className="py-3 px-4 text-sm">{sale.vendor}</td>
-                    <td className="py-3 px-4 text-sm font-semibold">R$ {sale.commission}</td>
+                    <td className="py-3 px-4 text-sm font-semibold">R$ {sale.value}</td>
+                    <td className="py-3 px-4 text-sm font-semibold">R$ {sale.sellerComm} ({sale.sellerPct})</td>
+                    <td className="py-3 px-4 text-sm font-semibold">R$ {sale.managerComm} (4%)</td>
                   </tr>
                 ))}
               </tbody>

@@ -141,7 +141,7 @@ export const SubscriptionPlans = () => {
   };
 
   const handleAddSubscriber = () => {
-    if (!newSubscriber.name || !newSubscriber.planId || !newSubscriber.startDate) {
+    if (!newSubscriber.name || !newSubscriber.planId || !newSubscriber.professional || !newSubscriber.startDate) {
       toast({
         title: "Erro",
         description: "Preencha todos os campos obrigatórios",
@@ -159,20 +159,21 @@ export const SubscriptionPlans = () => {
       name: newSubscriber.name,
       phone: newSubscriber.phone,
       planId: newSubscriber.planId,
+      professional: newSubscriber.professional,
       startDate: newSubscriber.startDate,
       nextPayment: nextPayment.toISOString().split('T')[0],
-      professional: "Kauan Carvalho",
-    status: "ativo"
+      status: "ativo"
     };
 
     setSubscribers([...subscribers, subscriber]);
-    setNewSubscriber({ name: "", phone: "", planId: "", startDate: "" });
+    setNewSubscriber({ name: "", phone: "", planId: "", professional: "", startDate: "" });
     setIsAddingSubscriber(false);
     toast({
       title: "Sucesso",
       description: "Assinante cadastrado com sucesso!"
     });
   };
+
 
   const activeSubscribers = subscribers.filter(s => s.status === "ativo").length;
   const expiredSubscribers = subscribers.filter(s => s.status === "vencido").length;

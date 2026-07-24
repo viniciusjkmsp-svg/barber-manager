@@ -11,6 +11,7 @@ export const Layout = ({ children, activeTab, setActiveTab }: LayoutProps) => {
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "daily", label: "Controle Diário", icon: Calendar },
+    { id: "agenda", label: "Agenda", icon: CalendarCheck },
     { id: "weekly", label: "Visualização Semanal", icon: CalendarDays },
     { id: "monthly", label: "Visualização Mensal", icon: CalendarRange },
     { id: "professionals", label: "Cabeleireiros", icon: Users },

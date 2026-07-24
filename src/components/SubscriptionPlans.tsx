@@ -406,6 +406,8 @@ export const SubscriptionPlans = () => {
                 <TableHead>Cliente</TableHead>
                 <TableHead>Telefone</TableHead>
                 <TableHead>Plano</TableHead>
+                <TableHead>Profissional</TableHead>
+                <TableHead>Valor</TableHead>
                 <TableHead>Início</TableHead>
                 <TableHead>Próximo Pagamento</TableHead>
                 <TableHead>Status</TableHead>
@@ -419,12 +421,15 @@ export const SubscriptionPlans = () => {
                     <TableCell className="font-medium">{subscriber.name}</TableCell>
                     <TableCell>{subscriber.phone}</TableCell>
                     <TableCell>{plan?.name}</TableCell>
+                    <TableCell>{subscriber.professional}</TableCell>
+                    <TableCell className="font-semibold">R$ {plan?.price.toFixed(2)}</TableCell>
                     <TableCell>{new Date(subscriber.startDate).toLocaleDateString('pt-BR')}</TableCell>
                     <TableCell>{new Date(subscriber.nextPayment).toLocaleDateString('pt-BR')}</TableCell>
                     <TableCell>{getStatusBadge(subscriber.status)}</TableCell>
                   </TableRow>
                 );
               })}
+
             </TableBody>
           </Table>
         </CardContent>

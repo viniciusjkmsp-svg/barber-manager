@@ -26,14 +26,15 @@ export const ProsthesisSales = () => {
   const numeric = parseFloat(value.replace(",", ".")) || 0;
   const sellerRate = SELLER_RATES[seller] ?? 0;
   const sellerCommission = numeric * sellerRate;
-  const managerCommission = numeric * MANAGER_RATE;
+  // Vinicius só recebe o 4% de gestor quando a venda NÃO é dele
+  const managerCommission = seller && seller !== "vinicius" ? numeric * MANAGER_RATE : 0;
   const totalCommissions = sellerCommission + managerCommission;
 
   const sales = [
-    { date: "10/05/2023", client: "Roberto Lima", value: "450,00", vendor: "Vinicius", sellerPct: "7%", sellerComm: "31,50", managerComm: "18,00" },
-    { date: "08/05/2023", client: "Carlos Eduardo", value: "380,00", vendor: "Davi", sellerPct: "3%", sellerComm: "11,40", managerComm: "15,20" },
-    { date: "05/05/2023", client: "Miguel Santos", value: "520,00", vendor: "Giovanna", sellerPct: "3%", sellerComm: "15,60", managerComm: "20,80" },
-    { date: "02/05/2023", client: "André Silva", value: "400,00", vendor: "Davi", sellerPct: "3%", sellerComm: "12,00", managerComm: "16,00" },
+    { date: "10/05/2023", client: "Roberto Lima", value: "450,00", vendor: "Vinicius", sellerPct: "7%", sellerComm: "31,50", managerComm: "0,00", managerPct: "—" },
+    { date: "08/05/2023", client: "Carlos Eduardo", value: "380,00", vendor: "Davi", sellerPct: "3%", sellerComm: "11,40", managerComm: "15,20", managerPct: "4%" },
+    { date: "05/05/2023", client: "Miguel Santos", value: "520,00", vendor: "Giovanna", sellerPct: "3%", sellerComm: "15,60", managerComm: "20,80", managerPct: "4%" },
+    { date: "02/05/2023", client: "André Silva", value: "400,00", vendor: "Davi", sellerPct: "3%", sellerComm: "12,00", managerComm: "16,00", managerPct: "4%" },
   ];
 
   return (
@@ -87,7 +88,7 @@ export const ProsthesisSales = () => {
                   <span className="font-semibold">{brl(sellerCommission)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span>Vinicius (Gestor {(MANAGER_RATE * 100).toFixed(0)}%)</span>
+                  <span>Vinicius (Gestor {(MANAGER_RATE * 100).toFixed(0)}%) {seller === "vinicius" && "— não se aplica"}</span>
                   <span className="font-semibold">{brl(managerCommission)}</span>
                 </div>
                 <div className="flex justify-between border-t pt-2 mt-1">
@@ -115,16 +116,16 @@ export const ProsthesisSales = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="border-b"><td className="py-2 text-sm">Vinicius</td><td className="py-2 text-sm text-right">7% (vendas próprias)</td></tr>
+                  <tr className="border-b"><td className="py-2 text-sm">Vinicius (vende)</td><td className="py-2 text-sm text-right">7% (sem gestor)</td></tr>
                   <tr className="border-b"><td className="py-2 text-sm">Davi</td><td className="py-2 text-sm text-right">3%</td></tr>
                   <tr className="border-b"><td className="py-2 text-sm">Giovanna</td><td className="py-2 text-sm text-right">3%</td></tr>
-                  <tr><td className="py-2 text-sm">Vinicius (Gestor)</td><td className="py-2 text-sm text-right">4% sobre todas</td></tr>
+                  <tr><td className="py-2 text-sm">Vinicius (Gestor)</td><td className="py-2 text-sm text-right">4% sobre vendas de outros</td></tr>
                 </tbody>
               </table>
               <Alert>
                 <Info className="h-4 w-4" />
                 <AlertDescription>
-                  Vinicius recebe <strong>4% sobre TODAS as vendas</strong> de prótese.
+                  Quando <strong>Vinicius vende</strong>, ele recebe apenas <strong>7%</strong>. O 4% de gestor incide somente sobre vendas de <strong>outros vendedores</strong>.
                 </AlertDescription>
               </Alert>
             </CardContent>
@@ -157,7 +158,7 @@ export const ProsthesisSales = () => {
                     <td className="py-3 px-4 text-sm">{sale.vendor}</td>
                     <td className="py-3 px-4 text-sm font-semibold">R$ {sale.value}</td>
                     <td className="py-3 px-4 text-sm font-semibold">R$ {sale.sellerComm} ({sale.sellerPct})</td>
-                    <td className="py-3 px-4 text-sm font-semibold">R$ {sale.managerComm} (4%)</td>
+                    <td className="py-3 px-4 text-sm font-semibold">R$ {sale.managerComm} ({sale.managerPct})</td>
                   </tr>
                 ))}
               </tbody>

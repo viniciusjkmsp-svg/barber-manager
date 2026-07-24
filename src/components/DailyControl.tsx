@@ -144,22 +144,11 @@ export const DailyControl = () => {
                   </Select>
                 </div>
                 <div>
-                  <Label className="mb-2 block">Serviços</Label>
-                  <div className="space-y-2">
-                    {[
-                      { id: "corte", label: "Corte (R$ 35,00)" },
-                      { id: "barba", label: "Barba (R$ 20,00)" },
-                      { id: "sobrancelha", label: "Sobrancelha (R$ 15,00)" },
-                      { id: "luzes", label: "Luzes (R$ 120,00)" },
-                      { id: "alisamento", label: "Alisamento (R$ 150,00)" },
-                      { id: "botox", label: "Botox (R$ 80,00)" },
-                    ].map((service) => (
-                      <div key={service.id} className="flex items-center space-x-2">
-                        <Checkbox id={service.id} />
-                        <label htmlFor={service.id} className="text-sm">{service.label}</label>
-                      </div>
-                    ))}
-                  </div>
+                  <Label htmlFor="servicosAtendimento" className="mb-2 block">Serviços</Label>
+                  <Input
+                    id="servicosAtendimento"
+                    placeholder="Ex: Corte, Barba, Sobrancelha..."
+                  />
                 </div>
               </div>
 

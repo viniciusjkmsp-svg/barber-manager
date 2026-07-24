@@ -42,7 +42,7 @@ const initialPlans: Plan[] = [
   {
     id: "1",
     name: "Plano Corte",
-    price: 130.00,
+    price: 140.00,
     services: ["4 Cortes por mês"],
     duration: "Mensal"
   },

@@ -115,9 +115,10 @@ export const ProsthesisSales = () => {
                   </tr>
                 </thead>
                 <tbody>
+                  <tr className="border-b"><td className="py-2 text-sm">Vinicius</td><td className="py-2 text-sm text-right">7% (vendas próprias)</td></tr>
                   <tr className="border-b"><td className="py-2 text-sm">Davi</td><td className="py-2 text-sm text-right">3%</td></tr>
                   <tr className="border-b"><td className="py-2 text-sm">Giovanna</td><td className="py-2 text-sm text-right">3%</td></tr>
-                  <tr><td className="py-2 text-sm">Vinicius (Gestor)</td><td className="py-2 text-sm text-right">4%</td></tr>
+                  <tr><td className="py-2 text-sm">Vinicius (Gestor)</td><td className="py-2 text-sm text-right">4% sobre todas</td></tr>
                 </tbody>
               </table>
               <Alert>

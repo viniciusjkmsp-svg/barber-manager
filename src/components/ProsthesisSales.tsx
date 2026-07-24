@@ -26,14 +26,15 @@ export const ProsthesisSales = () => {
   const numeric = parseFloat(value.replace(",", ".")) || 0;
   const sellerRate = SELLER_RATES[seller] ?? 0;
   const sellerCommission = numeric * sellerRate;
-  const managerCommission = numeric * MANAGER_RATE;
+  // Vinicius só recebe o 4% de gestor quando a venda NÃO é dele
+  const managerCommission = seller && seller !== "vinicius" ? numeric * MANAGER_RATE : 0;
   const totalCommissions = sellerCommission + managerCommission;
 
   const sales = [
-    { date: "10/05/2023", client: "Roberto Lima", value: "450,00", vendor: "Vinicius", sellerPct: "7%", sellerComm: "31,50", managerComm: "18,00" },
-    { date: "08/05/2023", client: "Carlos Eduardo", value: "380,00", vendor: "Davi", sellerPct: "3%", sellerComm: "11,40", managerComm: "15,20" },
-    { date: "05/05/2023", client: "Miguel Santos", value: "520,00", vendor: "Giovanna", sellerPct: "3%", sellerComm: "15,60", managerComm: "20,80" },
-    { date: "02/05/2023", client: "André Silva", value: "400,00", vendor: "Davi", sellerPct: "3%", sellerComm: "12,00", managerComm: "16,00" },
+    { date: "10/05/2023", client: "Roberto Lima", value: "450,00", vendor: "Vinicius", sellerPct: "7%", sellerComm: "31,50", managerComm: "0,00", managerPct: "—" },
+    { date: "08/05/2023", client: "Carlos Eduardo", value: "380,00", vendor: "Davi", sellerPct: "3%", sellerComm: "11,40", managerComm: "15,20", managerPct: "4%" },
+    { date: "05/05/2023", client: "Miguel Santos", value: "520,00", vendor: "Giovanna", sellerPct: "3%", sellerComm: "15,60", managerComm: "20,80", managerPct: "4%" },
+    { date: "02/05/2023", client: "André Silva", value: "400,00", vendor: "Davi", sellerPct: "3%", sellerComm: "12,00", managerComm: "16,00", managerPct: "4%" },
   ];
 
   return (

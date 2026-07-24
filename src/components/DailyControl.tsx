@@ -94,8 +94,8 @@ export const DailyControl = () => {
                       <SelectItem value="cristiano">Cristiano Nogueira</SelectItem>
                       <SelectItem value="claudio">Claudio Carvalho</SelectItem>
                       <SelectItem value="marcos">Marcos Macedo</SelectItem>
-                      <SelectItem value="silvia">Silvia Gomes</SelectItem>
-                      <SelectItem value="irani">Irani (Manicure) - 65%</SelectItem>
+                      <SelectItem value="silvia">Silvia Gomes (Cabeleireira)</SelectItem>
+                      <SelectItem value="irani">💅 Irani (Manicure) - 65%</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

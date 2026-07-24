@@ -88,7 +88,7 @@ export const ProsthesisSales = () => {
                   <span className="font-semibold">{brl(sellerCommission)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span>Vinicius (Gestor {(MANAGER_RATE * 100).toFixed(0)}%)</span>
+                  <span>Vinicius (Gestor {(MANAGER_RATE * 100).toFixed(0)}%) {seller === "vinicius" && "— não se aplica"}</span>
                   <span className="font-semibold">{brl(managerCommission)}</span>
                 </div>
                 <div className="flex justify-between border-t pt-2 mt-1">

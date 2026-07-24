@@ -1,4 +1,4 @@
-import { Scissors, LayoutDashboard, Calendar, CalendarDays, CalendarRange, Users, ShoppingCart, Package, CreditCard } from "lucide-react";
+import { Scissors, LayoutDashboard, Calendar, CalendarDays, CalendarRange, Users, ShoppingCart, Package, CreditCard, CalendarCheck } from "lucide-react";
 
 interface LayoutProps {
   children: React.ReactNode;

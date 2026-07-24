@@ -4,6 +4,7 @@ import { Dashboard } from "@/components/Dashboard";
 import { DailyControl } from "@/components/DailyControl";
 import { WeeklyView } from "@/components/WeeklyView";
 import { MonthlyView } from "@/components/MonthlyView";
+import { Agenda } from "@/components/Agenda";
 import { Professionals } from "@/components/Professionals";
 import { ProsthesisSales } from "@/components/ProsthesisSales";
 import { ProductsInventory } from "@/components/ProductsInventory";

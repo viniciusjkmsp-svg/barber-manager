@@ -135,6 +135,7 @@ export const DailyControl = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="kauan">Kauan Carvalho</SelectItem>
+                      <SelectItem value="kaua">Kauã Gonçalves</SelectItem>
                       <SelectItem value="cristiano">Cristiano Nogueira</SelectItem>
                       <SelectItem value="claudio">Claudio Carvalho</SelectItem>
                       <SelectItem value="marcos">Marcos Macedo</SelectItem>

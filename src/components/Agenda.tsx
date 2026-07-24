@@ -11,6 +11,7 @@ import { toast } from "sonner";
 
 const PROFESSIONALS = [
   { name: "Kauan Carvalho", services: ["Barbearia", "Manutenção"] },
+  { name: "Kauã Gonçalves", services: ["Barbearia", "Manutenção"] },
   { name: "Cristiano Nogueira", services: ["Barbearia", "Manutenção"] },
   { name: "Claudio Carvalho", services: ["Barbearia", "Manutenção"] },
   { name: "Marcos Macedo", services: ["Barbearia", "Manutenção"] },

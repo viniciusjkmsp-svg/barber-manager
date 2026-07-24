@@ -12,6 +12,7 @@ interface Professional {
 export const Professionals = () => {
   const professionals: Professional[] = [
     { name: "Kauan Carvalho", role: "Barbeiro", initials: "KC", color: "bg-blue-600", commissions: [{ label: "Barbearia", value: "50%" }, { label: "Manutenção", value: "40%" }] },
+    { name: "Kauã Gonçalves", role: "Barbeiro", initials: "KG", color: "bg-purple-600", commissions: [{ label: "Barbearia", value: "50%" }, { label: "Manutenção", value: "40%" }] },
     { name: "Cristiano Nogueira", role: "Barbeiro", initials: "CN", color: "bg-cyan-600", commissions: [{ label: "Barbearia", value: "50%" }, { label: "Manutenção", value: "40%" }] },
     { name: "Claudio Carvalho", role: "Barbeiro", initials: "CC", color: "bg-amber-600", commissions: [{ label: "Barbearia", value: "50%" }, { label: "Manutenção", value: "40%" }] },
     { name: "Marcos Macedo", role: "Barbeiro", initials: "MM", color: "bg-green-600", commissions: [{ label: "Barbearia", value: "50%" }, { label: "Manutenção", value: "40%" }] },

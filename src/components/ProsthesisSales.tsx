@@ -73,6 +73,7 @@ export const ProsthesisSales = () => {
                     <SelectValue placeholder="Selecione..." />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="vinicius">Vinicius - 7%</SelectItem>
                     <SelectItem value="davi">Davi - 3%</SelectItem>
                     <SelectItem value="giovanna">Giovanna - 3%</SelectItem>
                     <SelectItem value="outros">Outro</SelectItem>

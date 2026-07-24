@@ -78,7 +78,8 @@ export const DailyControl = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="barbearia">Barbearia - 50%</SelectItem>
-                      <SelectItem value="manutencao">Manutenção - 40% (Irani 65%)</SelectItem>
+                      <SelectItem value="manutencao">Manutenção - 40%</SelectItem>
+                      <SelectItem value="manicure">💅 Manicure - 65% (Irani)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

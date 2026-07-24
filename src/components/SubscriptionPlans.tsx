@@ -31,23 +31,23 @@ interface Subscriber {
 const initialPlans: Plan[] = [
   {
     id: "1",
-    name: "Plano Básico",
-    price: 89.90,
+    name: "Plano Corte",
+    price: 130.00,
     services: ["4 Cortes por mês"],
     duration: "Mensal"
   },
   {
     id: "2",
-    name: "Plano Premium",
-    price: 149.90,
+    name: "Plano Corte + Barba",
+    price: 180.00,
     services: ["4 Cortes por mês", "4 Barbas por mês"],
     duration: "Mensal"
   },
   {
     id: "3",
-    name: "Plano VIP",
-    price: 199.90,
-    services: ["Cortes ilimitados", "Barbas ilimitadas", "2 Sobrancelhas"],
+    name: "Plano 2x na Semana",
+    price: 240.00,
+    services: ["8 Cortes por mês", "8 Barbas por mês", "2x por semana"],
     duration: "Mensal"
   }
 ];

@@ -1,0 +1,168 @@
+{
+  "version": 1,
+  "sdk_version": "0.24.0",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://arwazqrrgchevkhjoosy.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "barbearia-estilo-mcp",
+      "version": "0.1.0",
+      "title": "Barbearia Estilo MCP"
+    },
+    "tools": [
+      {
+        "name": "list_professionals",
+        "title": "Listar profissionais",
+        "description": "Lista os profissionais da barbearia (barbeiros, manicures, etc.).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "only_active": {
+              "default": true,
+              "description": "Retornar apenas profissionais ativos.",
+              "type": "boolean"
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_services",
+        "title": "Listar serviços",
+        "description": "Lista os serviços oferecidos com preços e duração.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_appointments",
+        "title": "Listar agendamentos",
+        "description": "Lista agendamentos por intervalo de datas (formato YYYY-MM-DD).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "Data inicial YYYY-MM-DD (inclusiva)."
+            },
+            "to": {
+              "type": "string",
+              "description": "Data final YYYY-MM-DD (inclusiva)."
+            }
+          },
+          "required": [
+            "from",
+            "to"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_appointment",
+        "title": "Criar agendamento",
+        "description": "Cria um novo agendamento para um profissional e serviço.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "professional_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "service_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "appointment_date": {
+              "type": "string",
+              "description": "Data YYYY-MM-DD."
+            },
+            "appointment_time": {
+              "type": "string",
+              "description": "Horário HH:MM."
+            },
+            "client_id": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ID do cliente (opcional)."
+            },
+            "notes": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Observações (opcional)."
+            },
+            "total_price": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Valor total (opcional)."
+            }
+          },
+          "required": [
+            "professional_id",
+            "service_id",
+            "appointment_date",
+            "appointment_time",
+            "client_id",
+            "notes",
+            "total_price"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

@@ -11,10 +11,33 @@ import { useState } from "react";
 
 export const DailyControl = () => {
   const [products, setProducts] = useState<{ product: string; quantity: number }[]>([]);
+  const [serviceType, setServiceType] = useState<string>("");
+  const [professional, setProfessional] = useState<string>("");
+  const [totalValue, setTotalValue] = useState<string>("");
+  const [tip, setTip] = useState<string>("");
 
   const addProduct = () => {
     setProducts([...products, { product: "", quantity: 1 }]);
   };
+
+  const COMMISSION_TABLE: Record<string, { barbearia: number; manutencao: number }> = {
+    kauan: { barbearia: 0.5, manutencao: 0.4 },
+    cristiano: { barbearia: 0.5, manutencao: 0.4 },
+    claudio: { barbearia: 0.5, manutencao: 0.4 },
+    marcos: { barbearia: 0.5, manutencao: 0.4 },
+    silvia: { barbearia: 0.5, manutencao: 0.4 },
+    irani: { barbearia: 0, manutencao: 0.65 },
+  };
+
+  const numericValue = parseFloat(totalValue.replace(",", ".")) || 0;
+  const rate =
+    professional && serviceType && COMMISSION_TABLE[professional]
+      ? COMMISSION_TABLE[professional][serviceType as "barbearia" | "manutencao"] ?? 0
+      : 0;
+  const commission = numericValue * rate;
+  const brl = (n: number) =>
+    n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
 
   const transactions = [
     { time: "09:00", description: "João Silva (Corte - Marcos)", type: "atendimento", value: "50,00", products: "Heineken (1)" },
@@ -48,19 +71,30 @@ export const DailyControl = () => {
                   <Input id="clienteAtendimento" placeholder="Nome do cliente" />
                 </div>
                 <div>
-                  <Label htmlFor="profissionalAtendimento">Profissional</Label>
-                  <Select>
+                  <Label>Tipo de Serviço</Label>
+                  <Select value={serviceType} onValueChange={setServiceType}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="marcos">Marcos Macedo</SelectItem>
-                      <SelectItem value="junior">Junior Silva</SelectItem>
-                      <SelectItem value="cristiano">Cristiano Marques</SelectItem>
+                      <SelectItem value="barbearia">Barbearia - 50%</SelectItem>
+                      <SelectItem value="manutencao">Manutenção - 40% (Irani 65%)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="profissionalAtendimento">Profissional</Label>
+                  <Select value={professional} onValueChange={setProfessional}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="kauan">Kauan Carvalho</SelectItem>
+                      <SelectItem value="cristiano">Cristiano Nogueira</SelectItem>
                       <SelectItem value="claudio">Claudio Carvalho</SelectItem>
+                      <SelectItem value="marcos">Marcos Macedo</SelectItem>
                       <SelectItem value="silvia">Silvia Gomes</SelectItem>
-                      <SelectItem value="nelia">Nélia</SelectItem>
-                      <SelectItem value="irani">Irani</SelectItem>
+                      <SelectItem value="irani">Irani (Manicure) - 65%</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -108,9 +142,41 @@ export const DailyControl = () => {
                 </Button>
               </div>
 
-              <div>
-                <Label htmlFor="valorTotalAtendimento">Valor Total (R$)</Label>
-                <Input id="valorTotalAtendimento" value="R$ 0,00" readOnly className="bg-muted" />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="valorTotalAtendimento">Valor Total (R$)</Label>
+                  <Input
+                    id="valorTotalAtendimento"
+                    type="number"
+                    step="0.01"
+                    placeholder="0,00"
+                    value={totalValue}
+                    onChange={(e) => setTotalValue(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="gorjetaAtendimento">Gorjeta (R$)</Label>
+                  <Input
+                    id="gorjetaAtendimento"
+                    type="number"
+                    step="0.01"
+                    placeholder="0,00"
+                    value={tip}
+                    onChange={(e) => setTip(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="bg-muted/50 p-3 rounded-md flex justify-between items-center">
+                <div className="text-sm">
+                  <div className="font-semibold">Comissão</div>
+                  <div className="text-xs text-muted-foreground">
+                    {serviceType && professional
+                      ? `${(rate * 100).toFixed(0)}% de ${brl(numericValue)}`
+                      : "Selecione tipo e profissional"}
+                  </div>
+                </div>
+                <div className="text-lg font-bold">{brl(commission)}</div>
               </div>
 
               <Button className="w-full bg-success hover:bg-success/90">Registrar Atendimento</Button>

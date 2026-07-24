@@ -11,10 +11,33 @@ import { useState } from "react";
 
 export const DailyControl = () => {
   const [products, setProducts] = useState<{ product: string; quantity: number }[]>([]);
+  const [serviceType, setServiceType] = useState<string>("");
+  const [professional, setProfessional] = useState<string>("");
+  const [totalValue, setTotalValue] = useState<string>("");
+  const [tip, setTip] = useState<string>("");
 
   const addProduct = () => {
     setProducts([...products, { product: "", quantity: 1 }]);
   };
+
+  const COMMISSION_TABLE: Record<string, { barbearia: number; manutencao: number }> = {
+    kauan: { barbearia: 0.5, manutencao: 0.4 },
+    cristiano: { barbearia: 0.5, manutencao: 0.4 },
+    claudio: { barbearia: 0.5, manutencao: 0.4 },
+    marcos: { barbearia: 0.5, manutencao: 0.4 },
+    silvia: { barbearia: 0.5, manutencao: 0.4 },
+    irani: { barbearia: 0, manutencao: 0.65 },
+  };
+
+  const numericValue = parseFloat(totalValue.replace(",", ".")) || 0;
+  const rate =
+    professional && serviceType && COMMISSION_TABLE[professional]
+      ? COMMISSION_TABLE[professional][serviceType as "barbearia" | "manutencao"] ?? 0
+      : 0;
+  const commission = numericValue * rate;
+  const brl = (n: number) =>
+    n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
 
   const transactions = [
     { time: "09:00", description: "João Silva (Corte - Marcos)", type: "atendimento", value: "50,00", products: "Heineken (1)" },

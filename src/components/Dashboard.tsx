@@ -24,11 +24,11 @@ const COLORS = ["hsl(195, 75%, 45%)", "hsl(150, 60%, 45%)", "hsl(30, 90%, 55%)",
 
 export const Dashboard = () => {
   const appointments = [
-    { time: "09:00", client: "João Silva", professional: "Marcos Macedo", services: ["corte"], products: "Heineken (1)", value: "50,00" },
-    { time: "10:30", client: "Carlos Santos", professional: "Junior Silva", services: ["barba"], products: "Coca Cola 350ml (1)", value: "30,00" },
-    { time: "11:15", client: "Roberto Alves", professional: "Cristiano Marques", services: ["corte", "barba"], products: "Stella Artois (2)", value: "75,00" },
-    { time: "14:00", client: "Maria Oliveira", professional: "Silvia Gomes", services: ["luzes"], products: "-", value: "120,00" },
-    { time: "15:30", client: "Ana Costa", professional: "Nélia", services: ["manicure"], products: "Guaraná 200ml (1)", value: "35,00" },
+    { time: "09:00", client: "João Silva", professional: "Kauan Carvalho", services: ["corte"], products: "Heineken (1)", value: "50,00", tip: "5,00" },
+    { time: "10:30", client: "Carlos Santos", professional: "Cristiano Nogueira", services: ["barba"], products: "Coca Cola 350ml (1)", value: "30,00", tip: "0,00" },
+    { time: "11:15", client: "Roberto Alves", professional: "Claudio Carvalho", services: ["corte", "barba"], products: "Stella Artois (2)", value: "75,00", tip: "10,00" },
+    { time: "14:00", client: "Maria Oliveira", professional: "Silvia Gomes", services: ["luzes"], products: "-", value: "120,00", tip: "15,00" },
+    { time: "15:30", client: "Ana Costa", professional: "Irani", services: ["manicure"], products: "Guaraná 200ml (1)", value: "35,00", tip: "3,00" },
   ];
 
   return (
@@ -57,6 +57,7 @@ export const Dashboard = () => {
                     <th className="text-left py-3 px-4 font-semibold text-sm">Serviço</th>
                     <th className="text-left py-3 px-4 font-semibold text-sm">Produtos</th>
                     <th className="text-left py-3 px-4 font-semibold text-sm">Valor</th>
+                    <th className="text-left py-3 px-4 font-semibold text-sm">Gorjeta</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -74,6 +75,7 @@ export const Dashboard = () => {
                       </td>
                       <td className="py-3 px-4 text-sm text-muted-foreground">{apt.products}</td>
                       <td className="py-3 px-4 text-sm font-semibold">R$ {apt.value}</td>
+                      <td className="py-3 px-4 text-sm text-muted-foreground">R$ {apt.tip}</td>
                     </tr>
                   ))}
                 </tbody>

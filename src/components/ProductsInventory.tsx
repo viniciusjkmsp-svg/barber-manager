@@ -4,41 +4,82 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, Package, Check, X } from "lucide-react";
+import { useState } from "react";
+import { useProducts, productStatus, brl, Product } from "@/hooks/useProducts";
+import { toast } from "@/hooks/use-toast";
 
 export const ProductsInventory = () => {
-  const products = [
-    { id: 1, name: "Heineken Long Neck", category: "Cerveja", price: "15,00", cost: "8,00", stock: 48, minStock: 10, status: "ok" },
-    { id: 2, name: "Stella Artois", category: "Cerveja", price: "12,00", cost: "6,50", stock: 36, minStock: 10, status: "ok" },
-    { id: 3, name: "Corona Extra", category: "Cerveja", price: "14,00", cost: "7,50", stock: 2, minStock: 10, status: "critical" },
-    { id: 4, name: "Spaten", category: "Cerveja", price: "13,00", cost: "7,00", stock: 3, minStock: 10, status: "low" },
-    { id: 5, name: "Coca Cola 350ml", category: "Refrigerante", price: "6,00", cost: "3,00", stock: 24, minStock: 15, status: "ok" },
-    { id: 6, name: "Coca Cola 200ml", category: "Refrigerante", price: "4,50", cost: "2,00", stock: 1, minStock: 15, status: "critical" },
-    { id: 7, name: "Guaraná 200ml", category: "Refrigerante", price: "4,00", cost: "1,80", stock: 18, minStock: 15, status: "ok" },
-    { id: 8, name: "Água Mineral 500ml", category: "Água", price: "3,00", cost: "1,00", stock: 50, minStock: 20, status: "ok" },
-  ];
+  const { products, addProduct, updateProduct, removeProduct, restock } = useProducts();
 
-  const getStatusBadge = (status: string, stock: number) => {
-    if (status === "critical") {
-      return (
-        <Badge className="bg-[hsl(var(--stock-critical))] text-white">
-          {stock} un - Crítico
-        </Badge>
-      );
+  const [form, setForm] = useState({
+    name: "",
+    category: "",
+    price: "",
+    cost: "",
+    stock: "",
+    minStock: "",
+  });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState<Partial<Product>>({});
+  const [restockQty, setRestockQty] = useState<Record<string, string>>({});
+
+  const handleAdd = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.name || !form.category) {
+      toast({ title: "Preencha nome e categoria", variant: "destructive" });
+      return;
     }
-    if (status === "low") {
-      return (
-        <Badge className="bg-[hsl(var(--stock-low))] text-white">
-          {stock} un - Baixo
-        </Badge>
-      );
-    }
-    return (
-      <Badge className="bg-[hsl(var(--stock-ok))] text-white">
-        {stock} un - OK
-      </Badge>
-    );
+    addProduct({
+      name: form.name,
+      category: form.category,
+      price: parseFloat(form.price) || 0,
+      cost: parseFloat(form.cost) || 0,
+      stock: parseInt(form.stock) || 0,
+      minStock: parseInt(form.minStock) || 0,
+    });
+    toast({ title: "Produto cadastrado", description: form.name });
+    setForm({ name: "", category: "", price: "", cost: "", stock: "", minStock: "" });
   };
+
+  const startEdit = (p: Product) => {
+    setEditingId(p.id);
+    setEditDraft({ ...p });
+  };
+  const saveEdit = () => {
+    if (editingId) {
+      updateProduct(editingId, editDraft);
+      toast({ title: "Produto atualizado" });
+    }
+    setEditingId(null);
+    setEditDraft({});
+  };
+
+  const doRestock = (id: string) => {
+    const qty = parseInt(restockQty[id] || "0");
+    if (qty > 0) {
+      restock(id, qty);
+      toast({ title: "Estoque reabastecido", description: `+${qty} un` });
+      setRestockQty({ ...restockQty, [id]: "" });
+    }
+  };
+
+  const getStatusBadge = (p: Product) => {
+    const s = productStatus(p);
+    const map = {
+      critical: { cls: "bg-[hsl(var(--stock-critical))]", label: "Crítico" },
+      low: { cls: "bg-[hsl(var(--stock-low))]", label: "Baixo" },
+      ok: { cls: "bg-[hsl(var(--stock-ok))]", label: "OK" },
+    } as const;
+    return <Badge className={`${map[s].cls} text-white`}>{p.stock} un - {map[s].label}</Badge>;
+  };
+
+  const counts = {
+    ok: products.filter((p) => productStatus(p) === "ok").length,
+    low: products.filter((p) => productStatus(p) === "low").length,
+    critical: products.filter((p) => productStatus(p) === "critical").length,
+  };
+  const stockValue = products.reduce((sum, p) => sum + p.cost * p.stock, 0);
 
   return (
     <div>
@@ -50,43 +91,42 @@ export const ProductsInventory = () => {
             <CardTitle>Cadastrar Produto</CardTitle>
           </CardHeader>
           <CardContent>
-            <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="nomeProduto">Nome do Produto</Label>
-                <Input id="nomeProduto" placeholder="Nome do produto" />
+                <Label>Nome do Produto</Label>
+                <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Nome do produto" />
               </div>
               <div>
-                <Label htmlFor="categoriaProduto">Categoria</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione..." />
-                  </SelectTrigger>
+                <Label>Categoria</Label>
+                <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
+                  <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="cerveja">Cerveja</SelectItem>
-                    <SelectItem value="refrigerante">Refrigerante</SelectItem>
-                    <SelectItem value="agua">Água</SelectItem>
-                    <SelectItem value="outros">Outros</SelectItem>
+                    <SelectItem value="Cerveja">Cerveja</SelectItem>
+                    <SelectItem value="Refrigerante">Refrigerante</SelectItem>
+                    <SelectItem value="Água">Água</SelectItem>
+                    <SelectItem value="Energético">Energético</SelectItem>
+                    <SelectItem value="Outros">Outros</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label htmlFor="precoProduto">Preço de Venda (R$)</Label>
-                <Input type="number" step="0.01" id="precoProduto" placeholder="0,00" />
+                <Label>Preço de Venda (R$)</Label>
+                <Input type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="0,00" />
               </div>
               <div>
-                <Label htmlFor="custoProduto">Custo (R$)</Label>
-                <Input type="number" step="0.01" id="custoProduto" placeholder="0,00" />
+                <Label>Custo (R$)</Label>
+                <Input type="number" step="0.01" value={form.cost} onChange={(e) => setForm({ ...form, cost: e.target.value })} placeholder="0,00" />
               </div>
               <div>
-                <Label htmlFor="estoqueProduto">Estoque Atual</Label>
-                <Input type="number" id="estoqueProduto" placeholder="0" />
+                <Label>Estoque Atual</Label>
+                <Input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} placeholder="0" />
               </div>
               <div>
-                <Label htmlFor="estoqueMinimo">Estoque Mínimo</Label>
-                <Input type="number" id="estoqueMinimo" placeholder="0" />
+                <Label>Estoque Mínimo</Label>
+                <Input type="number" value={form.minStock} onChange={(e) => setForm({ ...form, minStock: e.target.value })} placeholder="0" />
               </div>
               <div className="md:col-span-2">
-                <Button className="w-full">
+                <Button type="submit" className="w-full">
                   <Plus className="w-4 h-4 mr-2" /> Cadastrar Produto
                 </Button>
               </div>
@@ -98,78 +138,118 @@ export const ProductsInventory = () => {
           <CardHeader>
             <CardTitle>Resumo do Estoque</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="p-4 rounded-lg bg-muted/50 text-center">
-              <p className="text-sm text-muted-foreground">Total de Produtos</p>
+          <CardContent className="space-y-3">
+            <div className="p-3 rounded-lg bg-muted/50 text-center">
+              <p className="text-xs text-muted-foreground">Total de Produtos</p>
               <p className="text-2xl font-bold">{products.length}</p>
             </div>
-            <div className="p-4 rounded-lg bg-[hsl(var(--stock-ok)/0.1)] text-center">
-              <p className="text-sm text-[hsl(var(--stock-ok))]">Estoque OK</p>
-              <p className="text-2xl font-bold text-[hsl(var(--stock-ok))]">
-                {products.filter(p => p.status === "ok").length}
-              </p>
+            <div className="p-3 rounded-lg bg-muted/50 text-center">
+              <p className="text-xs text-muted-foreground">Valor em Estoque (custo)</p>
+              <p className="text-xl font-bold">{brl(stockValue)}</p>
             </div>
-            <div className="p-4 rounded-lg bg-[hsl(var(--stock-low)/0.1)] text-center">
-              <p className="text-sm text-[hsl(var(--stock-low))]">Estoque Baixo</p>
-              <p className="text-2xl font-bold text-[hsl(var(--stock-low))]">
-                {products.filter(p => p.status === "low").length}
-              </p>
-            </div>
-            <div className="p-4 rounded-lg bg-[hsl(var(--stock-critical)/0.1)] text-center">
-              <p className="text-sm text-[hsl(var(--stock-critical))]">Estoque Crítico</p>
-              <p className="text-2xl font-bold text-[hsl(var(--stock-critical))]">
-                {products.filter(p => p.status === "critical").length}
-              </p>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="p-2 rounded-lg bg-[hsl(var(--stock-ok)/0.1)] text-center">
+                <p className="text-[10px] text-[hsl(var(--stock-ok))]">OK</p>
+                <p className="text-lg font-bold text-[hsl(var(--stock-ok))]">{counts.ok}</p>
+              </div>
+              <div className="p-2 rounded-lg bg-[hsl(var(--stock-low)/0.1)] text-center">
+                <p className="text-[10px] text-[hsl(var(--stock-low))]">Baixo</p>
+                <p className="text-lg font-bold text-[hsl(var(--stock-low))]">{counts.low}</p>
+              </div>
+              <div className="p-2 rounded-lg bg-[hsl(var(--stock-critical)/0.1)] text-center">
+                <p className="text-[10px] text-[hsl(var(--stock-critical))]">Crítico</p>
+                <p className="text-lg font-bold text-[hsl(var(--stock-critical))]">{counts.critical}</p>
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Lista de Produtos</CardTitle>
-        </CardHeader>
+        <CardHeader><CardTitle>Lista de Produtos</CardTitle></CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Produto</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Categoria</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Preço</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Custo</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Margem</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Estoque</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Ações</th>
+                  <th className="text-left py-3 px-2 font-semibold text-sm">Produto</th>
+                  <th className="text-left py-3 px-2 font-semibold text-sm">Categoria</th>
+                  <th className="text-left py-3 px-2 font-semibold text-sm">Preço</th>
+                  <th className="text-left py-3 px-2 font-semibold text-sm">Custo</th>
+                  <th className="text-left py-3 px-2 font-semibold text-sm">Margem</th>
+                  <th className="text-left py-3 px-2 font-semibold text-sm">Estoque</th>
+                  <th className="text-left py-3 px-2 font-semibold text-sm">Repor</th>
+                  <th className="text-left py-3 px-2 font-semibold text-sm">Ações</th>
                 </tr>
               </thead>
               <tbody>
                 {products.map((product) => {
-                  const price = parseFloat(product.price.replace(",", "."));
-                  const cost = parseFloat(product.cost.replace(",", "."));
-                  const margin = ((price - cost) / price * 100).toFixed(0);
-                  
+                  const isEdit = editingId === product.id;
+                  const margin = product.price > 0 ? (((product.price - product.cost) / product.price) * 100).toFixed(0) : "0";
                   return (
                     <tr key={product.id} className="border-b hover:bg-muted/50 transition-colors">
-                      <td className="py-3 px-4 text-sm font-medium">{product.name}</td>
-                      <td className="py-3 px-4 text-sm">{product.category}</td>
-                      <td className="py-3 px-4 text-sm">R$ {product.price}</td>
-                      <td className="py-3 px-4 text-sm">R$ {product.cost}</td>
-                      <td className="py-3 px-4 text-sm text-success font-medium">{margin}%</td>
-                      <td className="py-3 px-4">{getStatusBadge(product.status, product.stock)}</td>
-                      <td className="py-3 px-4">
-                        <div className="flex gap-2">
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <Edit className="w-4 h-4" />
+                      <td className="py-2 px-2 text-sm font-medium">
+                        {isEdit ? (
+                          <Input value={editDraft.name || ""} onChange={(e) => setEditDraft({ ...editDraft, name: e.target.value })} className="h-8" />
+                        ) : product.name}
+                      </td>
+                      <td className="py-2 px-2 text-sm">{product.category}</td>
+                      <td className="py-2 px-2 text-sm">
+                        {isEdit ? (
+                          <Input type="number" step="0.01" value={editDraft.price ?? 0} onChange={(e) => setEditDraft({ ...editDraft, price: parseFloat(e.target.value) || 0 })} className="h-8 w-20" />
+                        ) : brl(product.price)}
+                      </td>
+                      <td className="py-2 px-2 text-sm">
+                        {isEdit ? (
+                          <Input type="number" step="0.01" value={editDraft.cost ?? 0} onChange={(e) => setEditDraft({ ...editDraft, cost: parseFloat(e.target.value) || 0 })} className="h-8 w-20" />
+                        ) : brl(product.cost)}
+                      </td>
+                      <td className="py-2 px-2 text-sm text-success font-medium">{margin}%</td>
+                      <td className="py-2 px-2">{getStatusBadge(product)}</td>
+                      <td className="py-2 px-2">
+                        <div className="flex gap-1">
+                          <Input
+                            type="number"
+                            min="1"
+                            placeholder="qtd"
+                            className="h-8 w-16"
+                            value={restockQty[product.id] || ""}
+                            onChange={(e) => setRestockQty({ ...restockQty, [product.id]: e.target.value })}
+                          />
+                          <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => doRestock(product.id)}>
+                            <Package className="w-4 h-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                        </div>
+                      </td>
+                      <td className="py-2 px-2">
+                        <div className="flex gap-1">
+                          {isEdit ? (
+                            <>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-success" onClick={saveEdit}>
+                                <Check className="w-4 h-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingId(null); setEditDraft({}); }}>
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEdit(product)}>
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => { removeProduct(product.id); toast({ title: "Produto removido" }); }}>
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>
                   );
                 })}
+                {products.length === 0 && (
+                  <tr><td colSpan={8} className="py-8 text-center text-muted-foreground text-sm">Nenhum produto cadastrado.</td></tr>
+                )}
               </tbody>
             </table>
           </div>

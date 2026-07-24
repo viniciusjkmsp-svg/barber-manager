@@ -6,19 +6,27 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Plus, AlertTriangle } from "lucide-react";
+import { Plus, AlertTriangle, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useProducts, productStatus, brl } from "@/hooks/useProducts";
+import { toast } from "@/hooks/use-toast";
+
+type SoldItem = { productId: string; quantity: number };
 
 export const DailyControl = () => {
-  const [products, setProducts] = useState<{ product: string; quantity: number }[]>([]);
+  const { products, sellProduct } = useProducts();
+
+  const [items, setItems] = useState<SoldItem[]>([]);
   const [serviceType, setServiceType] = useState<string>("");
   const [professional, setProfessional] = useState<string>("");
   const [totalValue, setTotalValue] = useState<string>("");
   const [tip, setTip] = useState<string>("");
+  const [client, setClient] = useState<string>("");
 
-  const addProduct = () => {
-    setProducts([...products, { product: "", quantity: 1 }]);
-  };
+  const addItem = () => setItems([...items, { productId: "", quantity: 1 }]);
+  const updateItem = (idx: number, patch: Partial<SoldItem>) =>
+    setItems(items.map((it, i) => (i === idx ? { ...it, ...patch } : it)));
+  const removeItem = (idx: number) => setItems(items.filter((_, i) => i !== idx));
 
   const COMMISSION_TABLE: Record<string, { barbearia: number; manutencao: number; manicure: number }> = {
     kauan: { barbearia: 0.5, manutencao: 0.4, manicure: 0 },
@@ -35,9 +43,51 @@ export const DailyControl = () => {
       ? COMMISSION_TABLE[professional][serviceType as "barbearia" | "manutencao" | "manicure"] ?? 0
       : 0;
   const commission = numericValue * rate;
-  const brl = (n: number) =>
-    n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
+  const productsTotal = items.reduce((sum, it) => {
+    const p = products.find((x) => x.id === it.productId);
+    return sum + (p ? p.price * it.quantity : 0);
+  }, 0);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!client || !serviceType || !professional) {
+      toast({ title: "Preencha cliente, serviço e profissional", variant: "destructive" });
+      return;
+    }
+    // Validate stock before deducting anything
+    for (const it of items) {
+      if (!it.productId) continue;
+      const p = products.find((x) => x.id === it.productId);
+      if (!p) continue;
+      if (p.stock < it.quantity) {
+        toast({
+          title: "Estoque insuficiente",
+          description: `${p.name}: apenas ${p.stock} un.`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+    // Deduct
+    for (const it of items) {
+      if (!it.productId) continue;
+      sellProduct(it.productId, it.quantity);
+    }
+    toast({
+      title: "Atendimento registrado",
+      description: `${client} • ${brl(numericValue + productsTotal)} • Comissão ${brl(commission)}`,
+    });
+    setItems([]);
+    setClient("");
+    setTotalValue("");
+    setTip("");
+  };
+
+  const criticalStock = products
+    .map((p) => ({ p, s: productStatus(p) }))
+    .filter((x) => x.s !== "ok")
+    .slice(0, 6);
 
   const transactions = [
     { time: "09:00", description: "João Silva (Corte - Marcos)", type: "atendimento", value: "50,00", products: "Heineken (1)" },
@@ -45,12 +95,6 @@ export const DailyControl = () => {
     { time: "11:15", description: "Compra de Produtos", type: "despesa", value: "150,00", products: "-" },
     { time: "14:00", description: "Maria Oliveira (Luzes - Silvia)", type: "atendimento", value: "120,00", products: "-" },
     { time: "15:30", description: "Manutenção Equipamentos", type: "despesa", value: "80,00", products: "-" },
-  ];
-
-  const criticalStock = [
-    { name: "Corona", quantity: 2, status: "low" },
-    { name: "Spaten", quantity: 3, status: "low" },
-    { name: "Coca Cola 200ml", quantity: 1, status: "critical" },
   ];
 
   return (
@@ -63,12 +107,12 @@ export const DailyControl = () => {
             <CardTitle>Registrar Atendimento</CardTitle>
           </CardHeader>
           <CardContent>
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="bg-muted/50 p-4 rounded-lg space-y-4">
                 <h6 className="font-semibold text-sm">Informações do Atendimento</h6>
                 <div>
                   <Label htmlFor="clienteAtendimento">Cliente</Label>
-                  <Input id="clienteAtendimento" placeholder="Nome do cliente" />
+                  <Input id="clienteAtendimento" placeholder="Nome do cliente" value={client} onChange={(e) => setClient(e.target.value)} />
                 </div>
                 <div>
                   <Label>Tipo de Serviço</Label>
@@ -119,33 +163,58 @@ export const DailyControl = () => {
                 </div>
               </div>
 
-              <div className="bg-muted/50 p-4 rounded-lg space-y-4">
+              <div className="bg-muted/50 p-4 rounded-lg space-y-3">
                 <h6 className="font-semibold text-sm">Produtos Consumidos</h6>
-                {products.map((_, idx) => (
-                  <div key={idx} className="flex gap-2">
-                    <Select>
-                      <SelectTrigger className="flex-1">
-                        <SelectValue placeholder="Produto..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="heineken">Heineken (R$ 15,00)</SelectItem>
-                        <SelectItem value="stella">Stella Artois (R$ 12,00)</SelectItem>
-                        <SelectItem value="corona">Corona (R$ 14,00)</SelectItem>
-                        <SelectItem value="coca350">Coca Cola 350ml (R$ 6,00)</SelectItem>
-                        <SelectItem value="guarana">Guaraná 200ml (R$ 4,00)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Input type="number" min="1" defaultValue="1" className="w-20" />
-                  </div>
-                ))}
-                <Button type="button" variant="outline" size="sm" onClick={addProduct}>
-                  <Plus className="w-4 h-4 mr-1" /> Adicionar Produto
-                </Button>
+                {items.map((it, idx) => {
+                  const selected = products.find((p) => p.id === it.productId);
+                  const outOfStock = selected && selected.stock < it.quantity;
+                  return (
+                    <div key={idx} className="space-y-1">
+                      <div className="flex gap-2">
+                        <Select value={it.productId} onValueChange={(v) => updateItem(idx, { productId: v })}>
+                          <SelectTrigger className="flex-1">
+                            <SelectValue placeholder="Produto..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {products.map((p) => (
+                              <SelectItem key={p.id} value={p.id} disabled={p.stock <= 0}>
+                                {p.name} — {brl(p.price)} {p.stock <= 0 ? "(sem estoque)" : `(${p.stock} un)`}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Input
+                          type="number"
+                          min={1}
+                          value={it.quantity}
+                          onChange={(e) => updateItem(idx, { quantity: parseInt(e.target.value) || 1 })}
+                          className="w-20"
+                        />
+                        <Button type="button" variant="ghost" size="icon" onClick={() => removeItem(idx)}>
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
+                      </div>
+                      {outOfStock && (
+                        <p className="text-xs text-destructive">
+                          Apenas {selected?.stock} em estoque.
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+                <div className="flex justify-between items-center">
+                  <Button type="button" variant="outline" size="sm" onClick={addItem}>
+                    <Plus className="w-4 h-4 mr-1" /> Adicionar Produto
+                  </Button>
+                  {productsTotal > 0 && (
+                    <span className="text-sm font-medium">Produtos: {brl(productsTotal)}</span>
+                  )}
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label htmlFor="valorTotalAtendimento">Valor Total (R$)</Label>
+                  <Label htmlFor="valorTotalAtendimento">Valor do Serviço (R$)</Label>
                   <Input
                     id="valorTotalAtendimento"
                     type="number"
@@ -180,7 +249,7 @@ export const DailyControl = () => {
                 <div className="text-lg font-bold">{brl(commission)}</div>
               </div>
 
-              <Button className="w-full bg-success hover:bg-success/90">Registrar Atendimento</Button>
+              <Button type="submit" className="w-full bg-success hover:bg-success/90">Registrar Atendimento</Button>
             </form>
           </CardContent>
         </Card>
@@ -228,28 +297,34 @@ export const DailyControl = () => {
               <CardTitle>Estoque Crítico</CardTitle>
             </CardHeader>
             <CardContent>
-              <Alert className="mb-4 border-[hsl(var(--stock-low))] bg-[hsl(var(--stock-low)/0.1)]">
-                <AlertTriangle className="h-4 w-4 text-[hsl(var(--stock-low))]" />
-                <AlertDescription className="text-[hsl(var(--stock-low))]">
-                  3 produtos com estoque baixo
-                </AlertDescription>
-              </Alert>
-              <ul className="space-y-2">
-                {criticalStock.map((item, idx) => (
-                  <li key={idx} className="flex justify-between items-center p-2 rounded bg-muted/50">
-                    <span className="text-sm">{item.name}</span>
-                    <Badge 
-                      variant="outline" 
-                      className={item.status === "critical" 
-                        ? "bg-[hsl(var(--stock-critical)/0.1)] text-[hsl(var(--stock-critical))] border-[hsl(var(--stock-critical))]" 
-                        : "bg-[hsl(var(--stock-low)/0.1)] text-[hsl(var(--stock-low))] border-[hsl(var(--stock-low))]"
-                      }
-                    >
-                      {item.quantity} {item.quantity === 1 ? "unidade" : "unidades"}
-                    </Badge>
-                  </li>
-                ))}
-              </ul>
+              {criticalStock.length > 0 ? (
+                <>
+                  <Alert className="mb-4 border-[hsl(var(--stock-low))] bg-[hsl(var(--stock-low)/0.1)]">
+                    <AlertTriangle className="h-4 w-4 text-[hsl(var(--stock-low))]" />
+                    <AlertDescription className="text-[hsl(var(--stock-low))]">
+                      {criticalStock.length} produto(s) com estoque baixo
+                    </AlertDescription>
+                  </Alert>
+                  <ul className="space-y-2">
+                    {criticalStock.map(({ p, s }) => (
+                      <li key={p.id} className="flex justify-between items-center p-2 rounded bg-muted/50">
+                        <span className="text-sm">{p.name}</span>
+                        <Badge
+                          variant="outline"
+                          className={s === "critical"
+                            ? "bg-[hsl(var(--stock-critical)/0.1)] text-[hsl(var(--stock-critical))] border-[hsl(var(--stock-critical))]"
+                            : "bg-[hsl(var(--stock-low)/0.1)] text-[hsl(var(--stock-low))] border-[hsl(var(--stock-low))]"
+                          }
+                        >
+                          {p.stock} {p.stock === 1 ? "unidade" : "unidades"}
+                        </Badge>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">Todos os produtos com estoque OK.</p>
+              )}
             </CardContent>
           </Card>
         </div>

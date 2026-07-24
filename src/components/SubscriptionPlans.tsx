@@ -70,6 +70,7 @@ const initialSubscribers: Subscriber[] = [
     planId: "2",
     startDate: "2024-01-15",
     nextPayment: "2024-02-15",
+    professional: "Kauan Carvalho",
     status: "ativo"
   },
   {
@@ -79,6 +80,7 @@ const initialSubscribers: Subscriber[] = [
     planId: "3",
     startDate: "2024-01-10",
     nextPayment: "2024-02-10",
+    professional: "Kauan Carvalho",
     status: "ativo"
   },
   {
@@ -88,6 +90,7 @@ const initialSubscribers: Subscriber[] = [
     planId: "1",
     startDate: "2023-12-20",
     nextPayment: "2024-01-20",
+    professional: "Marcos Macedo",
     status: "vencido"
   },
   {
@@ -97,6 +100,7 @@ const initialSubscribers: Subscriber[] = [
     planId: "2",
     startDate: "2024-01-28",
     nextPayment: "2024-02-28",
+    professional: "Silvia Gomes",
     status: "pendente"
   }
 ];
@@ -156,7 +160,8 @@ export const SubscriptionPlans = () => {
       planId: newSubscriber.planId,
       startDate: newSubscriber.startDate,
       nextPayment: nextPayment.toISOString().split('T')[0],
-      status: "ativo"
+      professional: "Kauan Carvalho",
+    status: "ativo"
     };
 
     setSubscribers([...subscribers, subscriber]);

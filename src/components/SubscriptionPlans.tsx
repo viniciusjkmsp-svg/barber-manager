@@ -23,10 +23,20 @@ interface Subscriber {
   name: string;
   phone: string;
   planId: string;
+  professional: string;
   startDate: string;
   nextPayment: string;
   status: "ativo" | "vencido" | "pendente";
 }
+
+const PROFESSIONALS = [
+  "Kauan Carvalho",
+  "Kauã Gonçalves",
+  "Cristiano Nogueira",
+  "Claudio Carvalho",
+  "Marcos Macedo",
+  "Silvia Gomes",
+];
 
 const initialPlans: Plan[] = [
   {

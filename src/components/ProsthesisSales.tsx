@@ -8,6 +8,7 @@ import { Info } from "lucide-react";
 import { useState } from "react";
 
 const SELLER_RATES: Record<string, number> = {
+  vinicius: 0.07,
   davi: 0.03,
   giovanna: 0.03,
   outros: 0,
@@ -29,10 +30,10 @@ export const ProsthesisSales = () => {
   const totalCommissions = sellerCommission + managerCommission;
 
   const sales = [
-    { date: "10/05/2023", client: "Roberto Lima", value: "450,00", vendor: "Davi", commission: "13,50" },
-    { date: "08/05/2023", client: "Carlos Eduardo", value: "380,00", vendor: "Giovanna", commission: "11,40" },
-    { date: "05/05/2023", client: "Miguel Santos", value: "520,00", vendor: "Outro", commission: "0,00" },
-    { date: "02/05/2023", client: "André Silva", value: "400,00", vendor: "Davi", commission: "12,00" },
+    { date: "10/05/2023", client: "Roberto Lima", value: "450,00", vendor: "Vinicius", sellerPct: "7%", sellerComm: "31,50", managerComm: "18,00" },
+    { date: "08/05/2023", client: "Carlos Eduardo", value: "380,00", vendor: "Davi", sellerPct: "3%", sellerComm: "11,40", managerComm: "15,20" },
+    { date: "05/05/2023", client: "Miguel Santos", value: "520,00", vendor: "Giovanna", sellerPct: "3%", sellerComm: "15,60", managerComm: "20,80" },
+    { date: "02/05/2023", client: "André Silva", value: "400,00", vendor: "Davi", sellerPct: "3%", sellerComm: "12,00", managerComm: "16,00" },
   ];
 
   return (

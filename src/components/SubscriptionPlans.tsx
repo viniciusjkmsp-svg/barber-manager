@@ -116,6 +116,7 @@ export const SubscriptionPlans = () => {
     name: "",
     phone: "",
     planId: "",
+    professional: "",
     startDate: ""
   });
 

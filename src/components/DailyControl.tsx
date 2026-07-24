@@ -142,9 +142,41 @@ export const DailyControl = () => {
                 </Button>
               </div>
 
-              <div>
-                <Label htmlFor="valorTotalAtendimento">Valor Total (R$)</Label>
-                <Input id="valorTotalAtendimento" value="R$ 0,00" readOnly className="bg-muted" />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="valorTotalAtendimento">Valor Total (R$)</Label>
+                  <Input
+                    id="valorTotalAtendimento"
+                    type="number"
+                    step="0.01"
+                    placeholder="0,00"
+                    value={totalValue}
+                    onChange={(e) => setTotalValue(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="gorjetaAtendimento">Gorjeta (R$)</Label>
+                  <Input
+                    id="gorjetaAtendimento"
+                    type="number"
+                    step="0.01"
+                    placeholder="0,00"
+                    value={tip}
+                    onChange={(e) => setTip(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="bg-muted/50 p-3 rounded-md flex justify-between items-center">
+                <div className="text-sm">
+                  <div className="font-semibold">Comissão</div>
+                  <div className="text-xs text-muted-foreground">
+                    {serviceType && professional
+                      ? `${(rate * 100).toFixed(0)}% de ${brl(numericValue)}`
+                      : "Selecione tipo e profissional"}
+                  </div>
+                </div>
+                <div className="text-lg font-bold">{brl(commission)}</div>
               </div>
 
               <Button className="w-full bg-success hover:bg-success/90">Registrar Atendimento</Button>

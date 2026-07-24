@@ -158,7 +158,7 @@ export const ProsthesisSales = () => {
                     <td className="py-3 px-4 text-sm">{sale.vendor}</td>
                     <td className="py-3 px-4 text-sm font-semibold">R$ {sale.value}</td>
                     <td className="py-3 px-4 text-sm font-semibold">R$ {sale.sellerComm} ({sale.sellerPct})</td>
-                    <td className="py-3 px-4 text-sm font-semibold">R$ {sale.managerComm} (4%)</td>
+                    <td className="py-3 px-4 text-sm font-semibold">R$ {sale.managerComm} ({sale.managerPct})</td>
                   </tr>
                 ))}
               </tbody>

@@ -16,8 +16,8 @@ export const Professionals = () => {
     { name: "Claudio Carvalho", role: "Barbeiro", initials: "CC", color: "bg-amber-600", commissions: [{ label: "Barbearia", value: "50%" }, { label: "Manutenção", value: "40%" }] },
     { name: "Marcos Macedo", role: "Barbeiro", initials: "MM", color: "bg-green-600", commissions: [{ label: "Barbearia", value: "50%" }, { label: "Manutenção", value: "40%" }] },
     { name: "Silvia Gomes", role: "Cabeleireira", initials: "SG", color: "bg-red-600", commissions: [{ label: "Barbearia", value: "50%" }, { label: "Manutenção", value: "40%" }] },
-    { name: "Irani", role: "Manicure", initials: "IR", color: "bg-slate-700", commissions: [{ label: "Manutenção", value: "65%" }] },
-    { name: "Vinicius", role: "Gestor", initials: "VM", color: "bg-emerald-600", commissions: [{ label: "Prótese (todas as vendas)", value: "4%" }] },
+    { name: "Irani", role: "💅 Manicure", initials: "IR", color: "bg-slate-700", commissions: [{ label: "Manicure", value: "65%" }] },
+    { name: "Vinicius", role: "Gestor/Vendedor", initials: "VM", color: "bg-emerald-600", commissions: [{ label: "Prótese própria", value: "7%" }, { label: "Gestor (todas)", value: "4%" }] },
     { name: "Davi", role: "Vendedor de Prótese", initials: "DV", color: "bg-indigo-600", commissions: [{ label: "Prótese", value: "3%" }] },
     { name: "Giovanna", role: "Vendedora de Prótese", initials: "GV", color: "bg-pink-600", commissions: [{ label: "Prótese", value: "3%" }] },
   ];

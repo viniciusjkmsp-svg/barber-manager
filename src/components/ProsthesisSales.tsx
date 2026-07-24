@@ -8,6 +8,7 @@ import { Info } from "lucide-react";
 import { useState } from "react";
 
 const SELLER_RATES: Record<string, number> = {
+  vinicius: 0.07,
   davi: 0.03,
   giovanna: 0.03,
   outros: 0,
@@ -29,10 +30,10 @@ export const ProsthesisSales = () => {
   const totalCommissions = sellerCommission + managerCommission;
 
   const sales = [
-    { date: "10/05/2023", client: "Roberto Lima", value: "450,00", vendor: "Davi", commission: "13,50" },
-    { date: "08/05/2023", client: "Carlos Eduardo", value: "380,00", vendor: "Giovanna", commission: "11,40" },
-    { date: "05/05/2023", client: "Miguel Santos", value: "520,00", vendor: "Outro", commission: "0,00" },
-    { date: "02/05/2023", client: "André Silva", value: "400,00", vendor: "Davi", commission: "12,00" },
+    { date: "10/05/2023", client: "Roberto Lima", value: "450,00", vendor: "Vinicius", sellerPct: "7%", sellerComm: "31,50", managerComm: "18,00" },
+    { date: "08/05/2023", client: "Carlos Eduardo", value: "380,00", vendor: "Davi", sellerPct: "3%", sellerComm: "11,40", managerComm: "15,20" },
+    { date: "05/05/2023", client: "Miguel Santos", value: "520,00", vendor: "Giovanna", sellerPct: "3%", sellerComm: "15,60", managerComm: "20,80" },
+    { date: "02/05/2023", client: "André Silva", value: "400,00", vendor: "Davi", sellerPct: "3%", sellerComm: "12,00", managerComm: "16,00" },
   ];
 
   return (
@@ -72,6 +73,7 @@ export const ProsthesisSales = () => {
                     <SelectValue placeholder="Selecione..." />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="vinicius">Vinicius - 7%</SelectItem>
                     <SelectItem value="davi">Davi - 3%</SelectItem>
                     <SelectItem value="giovanna">Giovanna - 3%</SelectItem>
                     <SelectItem value="outros">Outro</SelectItem>
@@ -113,9 +115,10 @@ export const ProsthesisSales = () => {
                   </tr>
                 </thead>
                 <tbody>
+                  <tr className="border-b"><td className="py-2 text-sm">Vinicius</td><td className="py-2 text-sm text-right">7% (vendas próprias)</td></tr>
                   <tr className="border-b"><td className="py-2 text-sm">Davi</td><td className="py-2 text-sm text-right">3%</td></tr>
                   <tr className="border-b"><td className="py-2 text-sm">Giovanna</td><td className="py-2 text-sm text-right">3%</td></tr>
-                  <tr><td className="py-2 text-sm">Vinicius (Gestor)</td><td className="py-2 text-sm text-right">4%</td></tr>
+                  <tr><td className="py-2 text-sm">Vinicius (Gestor)</td><td className="py-2 text-sm text-right">4% sobre todas</td></tr>
                 </tbody>
               </table>
               <Alert>
@@ -140,9 +143,10 @@ export const ProsthesisSales = () => {
                 <tr className="border-b">
                   <th className="text-left py-3 px-4 font-semibold text-sm">Data</th>
                   <th className="text-left py-3 px-4 font-semibold text-sm">Cliente</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Valor</th>
                   <th className="text-left py-3 px-4 font-semibold text-sm">Vendedor</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Comissão</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">Valor</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">Comissão Vendedor</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">Comissão Gestor</th>
                 </tr>
               </thead>
               <tbody>
@@ -150,9 +154,10 @@ export const ProsthesisSales = () => {
                   <tr key={idx} className="border-b hover:bg-muted/50 transition-colors">
                     <td className="py-3 px-4 text-sm">{sale.date}</td>
                     <td className="py-3 px-4 text-sm">{sale.client}</td>
-                    <td className="py-3 px-4 text-sm font-semibold">R$ {sale.value}</td>
                     <td className="py-3 px-4 text-sm">{sale.vendor}</td>
-                    <td className="py-3 px-4 text-sm font-semibold">R$ {sale.commission}</td>
+                    <td className="py-3 px-4 text-sm font-semibold">R$ {sale.value}</td>
+                    <td className="py-3 px-4 text-sm font-semibold">R$ {sale.sellerComm} ({sale.sellerPct})</td>
+                    <td className="py-3 px-4 text-sm font-semibold">R$ {sale.managerComm} (4%)</td>
                   </tr>
                 ))}
               </tbody>

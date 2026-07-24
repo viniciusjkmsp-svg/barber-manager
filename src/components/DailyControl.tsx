@@ -20,19 +20,19 @@ export const DailyControl = () => {
     setProducts([...products, { product: "", quantity: 1 }]);
   };
 
-  const COMMISSION_TABLE: Record<string, { barbearia: number; manutencao: number }> = {
-    kauan: { barbearia: 0.5, manutencao: 0.4 },
-    cristiano: { barbearia: 0.5, manutencao: 0.4 },
-    claudio: { barbearia: 0.5, manutencao: 0.4 },
-    marcos: { barbearia: 0.5, manutencao: 0.4 },
-    silvia: { barbearia: 0.5, manutencao: 0.4 },
-    irani: { barbearia: 0, manutencao: 0.65 },
+  const COMMISSION_TABLE: Record<string, { barbearia: number; manutencao: number; manicure: number }> = {
+    kauan: { barbearia: 0.5, manutencao: 0.4, manicure: 0 },
+    cristiano: { barbearia: 0.5, manutencao: 0.4, manicure: 0 },
+    claudio: { barbearia: 0.5, manutencao: 0.4, manicure: 0 },
+    marcos: { barbearia: 0.5, manutencao: 0.4, manicure: 0 },
+    silvia: { barbearia: 0.5, manutencao: 0.4, manicure: 0 },
+    irani: { barbearia: 0, manutencao: 0, manicure: 0.65 },
   };
 
   const numericValue = parseFloat(totalValue.replace(",", ".")) || 0;
   const rate =
     professional && serviceType && COMMISSION_TABLE[professional]
-      ? COMMISSION_TABLE[professional][serviceType as "barbearia" | "manutencao"] ?? 0
+      ? COMMISSION_TABLE[professional][serviceType as "barbearia" | "manutencao" | "manicure"] ?? 0
       : 0;
   const commission = numericValue * rate;
   const brl = (n: number) =>
@@ -78,7 +78,8 @@ export const DailyControl = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="barbearia">Barbearia - 50%</SelectItem>
-                      <SelectItem value="manutencao">Manutenção - 40% (Irani 65%)</SelectItem>
+                      <SelectItem value="manutencao">Manutenção - 40%</SelectItem>
+                      <SelectItem value="manicure">💅 Manicure - 65% (Irani)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -93,8 +94,8 @@ export const DailyControl = () => {
                       <SelectItem value="cristiano">Cristiano Nogueira</SelectItem>
                       <SelectItem value="claudio">Claudio Carvalho</SelectItem>
                       <SelectItem value="marcos">Marcos Macedo</SelectItem>
-                      <SelectItem value="silvia">Silvia Gomes</SelectItem>
-                      <SelectItem value="irani">Irani (Manicure) - 65%</SelectItem>
+                      <SelectItem value="silvia">Silvia Gomes (Cabeleireira)</SelectItem>
+                      <SelectItem value="irani">💅 Irani (Manicure) - 65%</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

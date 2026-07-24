@@ -101,11 +101,8 @@ export const ProductsInventory = () => {
                 <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
                   <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Cerveja">Cerveja</SelectItem>
-                    <SelectItem value="Refrigerante">Refrigerante</SelectItem>
-                    <SelectItem value="Água">Água</SelectItem>
-                    <SelectItem value="Energético">Energético</SelectItem>
-                    <SelectItem value="Outros">Outros</SelectItem>
+                    <SelectItem value="Geladeira">Geladeira</SelectItem>
+                    <SelectItem value="Produtos do Salão">Produtos do Salão</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

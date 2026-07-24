@@ -23,10 +23,20 @@ interface Subscriber {
   name: string;
   phone: string;
   planId: string;
+  professional: string;
   startDate: string;
   nextPayment: string;
   status: "ativo" | "vencido" | "pendente";
 }
+
+const PROFESSIONALS = [
+  "Kauan Carvalho",
+  "Kauã Gonçalves",
+  "Cristiano Nogueira",
+  "Claudio Carvalho",
+  "Marcos Macedo",
+  "Silvia Gomes",
+];
 
 const initialPlans: Plan[] = [
   {
@@ -60,6 +70,7 @@ const initialSubscribers: Subscriber[] = [
     planId: "2",
     startDate: "2024-01-15",
     nextPayment: "2024-02-15",
+    professional: "Kauan Carvalho",
     status: "ativo"
   },
   {
@@ -69,6 +80,7 @@ const initialSubscribers: Subscriber[] = [
     planId: "3",
     startDate: "2024-01-10",
     nextPayment: "2024-02-10",
+    professional: "Kauan Carvalho",
     status: "ativo"
   },
   {
@@ -78,6 +90,7 @@ const initialSubscribers: Subscriber[] = [
     planId: "1",
     startDate: "2023-12-20",
     nextPayment: "2024-01-20",
+    professional: "Marcos Macedo",
     status: "vencido"
   },
   {
@@ -87,6 +100,7 @@ const initialSubscribers: Subscriber[] = [
     planId: "2",
     startDate: "2024-01-28",
     nextPayment: "2024-02-28",
+    professional: "Silvia Gomes",
     status: "pendente"
   }
 ];
@@ -102,6 +116,7 @@ export const SubscriptionPlans = () => {
     name: "",
     phone: "",
     planId: "",
+    professional: "",
     startDate: ""
   });
 
@@ -126,7 +141,7 @@ export const SubscriptionPlans = () => {
   };
 
   const handleAddSubscriber = () => {
-    if (!newSubscriber.name || !newSubscriber.planId || !newSubscriber.startDate) {
+    if (!newSubscriber.name || !newSubscriber.planId || !newSubscriber.professional || !newSubscriber.startDate) {
       toast({
         title: "Erro",
         description: "Preencha todos os campos obrigatórios",
@@ -144,19 +159,21 @@ export const SubscriptionPlans = () => {
       name: newSubscriber.name,
       phone: newSubscriber.phone,
       planId: newSubscriber.planId,
+      professional: newSubscriber.professional,
       startDate: newSubscriber.startDate,
       nextPayment: nextPayment.toISOString().split('T')[0],
       status: "ativo"
     };
 
     setSubscribers([...subscribers, subscriber]);
-    setNewSubscriber({ name: "", phone: "", planId: "", startDate: "" });
+    setNewSubscriber({ name: "", phone: "", planId: "", professional: "", startDate: "" });
     setIsAddingSubscriber(false);
     toast({
       title: "Sucesso",
       description: "Assinante cadastrado com sucesso!"
     });
   };
+
 
   const activeSubscribers = subscribers.filter(s => s.status === "ativo").length;
   const expiredSubscribers = subscribers.filter(s => s.status === "vencido").length;
@@ -255,6 +272,19 @@ export const SubscriptionPlans = () => {
                   </Select>
                 </div>
                 <div>
+                  <Label>Profissional Responsável *</Label>
+                  <Select value={newSubscriber.professional} onValueChange={(v) => setNewSubscriber({...newSubscriber, professional: v})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o profissional" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PROFESSIONALS.map(prof => (
+                        <SelectItem key={prof} value={prof}>{prof}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
                   <Label>Data de Início *</Label>
                   <Input 
                     type="date"
@@ -262,9 +292,39 @@ export const SubscriptionPlans = () => {
                     onChange={(e) => setNewSubscriber({...newSubscriber, startDate: e.target.value})}
                   />
                 </div>
+
+                {/* Cálculo automático */}
+                {(() => {
+                  const plan = getPlanById(newSubscriber.planId);
+                  if (!plan) return null;
+                  const start = newSubscriber.startDate ? new Date(newSubscriber.startDate) : null;
+                  const next = start ? new Date(start) : null;
+                  if (next) next.setMonth(next.getMonth() + 1);
+                  const commissionRate = 0.5;
+                  const commission = plan.price * commissionRate;
+                  const houseShare = plan.price - commission;
+                  return (
+                    <div className="rounded-lg border bg-muted/40 p-3 space-y-1 text-sm">
+                      <div className="font-semibold mb-1">Resumo do Plano</div>
+                      <div className="flex justify-between"><span>Plano:</span><span>{plan.name}</span></div>
+                      <div className="flex justify-between"><span>Valor mensal:</span><span className="font-bold">R$ {plan.price.toFixed(2)}</span></div>
+                      {next && (
+                        <div className="flex justify-between"><span>Próximo pagamento:</span><span>{next.toLocaleDateString('pt-BR')}</span></div>
+                      )}
+                      {newSubscriber.professional && (
+                        <>
+                          <div className="flex justify-between"><span>Comissão {newSubscriber.professional} (50%):</span><span>R$ {commission.toFixed(2)}</span></div>
+                          <div className="flex justify-between"><span>Barbearia (50%):</span><span>R$ {houseShare.toFixed(2)}</span></div>
+                        </>
+                      )}
+                    </div>
+                  );
+                })()}
+
                 <Button className="w-full" onClick={handleAddSubscriber}>
                   Cadastrar Assinante
                 </Button>
+
               </div>
             </DialogContent>
           </Dialog>
@@ -346,6 +406,8 @@ export const SubscriptionPlans = () => {
                 <TableHead>Cliente</TableHead>
                 <TableHead>Telefone</TableHead>
                 <TableHead>Plano</TableHead>
+                <TableHead>Profissional</TableHead>
+                <TableHead>Valor</TableHead>
                 <TableHead>Início</TableHead>
                 <TableHead>Próximo Pagamento</TableHead>
                 <TableHead>Status</TableHead>
@@ -359,12 +421,15 @@ export const SubscriptionPlans = () => {
                     <TableCell className="font-medium">{subscriber.name}</TableCell>
                     <TableCell>{subscriber.phone}</TableCell>
                     <TableCell>{plan?.name}</TableCell>
+                    <TableCell>{subscriber.professional}</TableCell>
+                    <TableCell className="font-semibold">R$ {plan?.price.toFixed(2)}</TableCell>
                     <TableCell>{new Date(subscriber.startDate).toLocaleDateString('pt-BR')}</TableCell>
                     <TableCell>{new Date(subscriber.nextPayment).toLocaleDateString('pt-BR')}</TableCell>
                     <TableCell>{getStatusBadge(subscriber.status)}</TableCell>
                   </TableRow>
                 );
               })}
+
             </TableBody>
           </Table>
         </CardContent>

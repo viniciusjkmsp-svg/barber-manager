@@ -71,19 +71,30 @@ export const DailyControl = () => {
                   <Input id="clienteAtendimento" placeholder="Nome do cliente" />
                 </div>
                 <div>
-                  <Label htmlFor="profissionalAtendimento">Profissional</Label>
-                  <Select>
+                  <Label>Tipo de Serviço</Label>
+                  <Select value={serviceType} onValueChange={setServiceType}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="marcos">Marcos Macedo</SelectItem>
-                      <SelectItem value="junior">Junior Silva</SelectItem>
-                      <SelectItem value="cristiano">Cristiano Marques</SelectItem>
+                      <SelectItem value="barbearia">Barbearia - 50%</SelectItem>
+                      <SelectItem value="manutencao">Manutenção - 40% (Irani 65%)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="profissionalAtendimento">Profissional</Label>
+                  <Select value={professional} onValueChange={setProfessional}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="kauan">Kauan Carvalho</SelectItem>
+                      <SelectItem value="cristiano">Cristiano Nogueira</SelectItem>
                       <SelectItem value="claudio">Claudio Carvalho</SelectItem>
+                      <SelectItem value="marcos">Marcos Macedo</SelectItem>
                       <SelectItem value="silvia">Silvia Gomes</SelectItem>
-                      <SelectItem value="nelia">Nélia</SelectItem>
-                      <SelectItem value="irani">Irani</SelectItem>
+                      <SelectItem value="irani">Irani (Manicure) - 65%</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

@@ -19,6 +19,8 @@ const Index = () => {
         return <Dashboard />;
       case "daily":
         return <DailyControl />;
+      case "agenda":
+        return <Agenda />;
       case "weekly":
         return <WeeklyView />;
       case "monthly":

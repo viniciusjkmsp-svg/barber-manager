@@ -100,24 +100,10 @@ export const ProsthesisSales = () => {
               <CardTitle>Resumo</CardTitle>
             </CardHeader>
             <CardContent>
-              <table className="w-full mb-4">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-2 text-sm font-semibold">Vendedor</th>
-                    <th className="text-right py-2 text-sm font-semibold">%</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b"><td className="py-2 text-sm">Vinicius (vende)</td><td className="py-2 text-sm text-right">7% (sem gestor)</td></tr>
-                  <tr className="border-b"><td className="py-2 text-sm">Davi</td><td className="py-2 text-sm text-right">3%</td></tr>
-                  <tr className="border-b"><td className="py-2 text-sm">Giovanna</td><td className="py-2 text-sm text-right">3%</td></tr>
-                  <tr><td className="py-2 text-sm">Vinicius (Gestor)</td><td className="py-2 text-sm text-right">4% sobre vendas de outros</td></tr>
-                </tbody>
-              </table>
               <Alert>
                 <Info className="h-4 w-4" />
                 <AlertDescription>
-                  Quando <strong>Vinicius vende</strong>, ele recebe apenas <strong>7%</strong>. O 4% de gestor incide somente sobre vendas de <strong>outros vendedores</strong>.
+                  As comissões são calculadas automaticamente conforme o vendedor selecionado.
                 </AlertDescription>
               </Alert>
             </CardContent>

@@ -21,8 +21,8 @@ const SELLER_RATES: Record<string, number> = {
   outros: 0,
 };
 const MANAGER_RATE = 0.04;
-const MAINT_ALERT_DAYS = 30;
-const MAINT_OVERDUE_DAYS = 45;
+const MAINT_ALERT_DAYS = 10;
+const MAINT_OVERDUE_DAYS = 20;
 
 const SELLER_LABELS: Record<string, string> = {
   vinicius: "Vinicius",

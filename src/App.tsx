@@ -8,12 +8,14 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import OAuthConsent from "./pages/OAuthConsent";
 import { ProductsProvider } from "@/hooks/useProducts";
+import { ClientsProvider } from "@/hooks/useClients";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ProductsProvider>
+      <ClientsProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -27,6 +29,7 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
+      </ClientsProvider>
     </ProductsProvider>
   </QueryClientProvider>
 );

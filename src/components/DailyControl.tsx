@@ -9,12 +9,14 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Plus, AlertTriangle, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useProducts, productStatus, brl } from "@/hooks/useProducts";
+import { useFinance, EXPENSE_CATEGORIES, type ExpenseCategory } from "@/hooks/useFinance";
 import { toast } from "@/hooks/use-toast";
 
 type SoldItem = { productId: string; quantity: number };
 
 export const DailyControl = () => {
   const { products, sellProduct } = useProducts();
+  const { addExpense, addIncome } = useFinance();
 
   const [items, setItems] = useState<SoldItem[]>([]);
   const [serviceType, setServiceType] = useState<string>("");
@@ -22,6 +24,12 @@ export const DailyControl = () => {
   const [totalValue, setTotalValue] = useState<string>("");
   const [tip, setTip] = useState<string>("");
   const [client, setClient] = useState<string>("");
+
+  const todayStr = () => new Date().toISOString().slice(0, 10);
+  const [expDate, setExpDate] = useState<string>(todayStr());
+  const [expDesc, setExpDesc] = useState<string>("");
+  const [expValue, setExpValue] = useState<string>("");
+  const [expCategory, setExpCategory] = useState<ExpenseCategory | "">("");
 
   const addItem = () => setItems([...items, { productId: "", quantity: 1 }]);
   const updateItem = (idx: number, patch: Partial<SoldItem>) =>

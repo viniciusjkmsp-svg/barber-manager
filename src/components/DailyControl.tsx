@@ -24,6 +24,7 @@ export const DailyControl = () => {
   const [totalValue, setTotalValue] = useState<string>("");
   const [tip, setTip] = useState<string>("");
   const [client, setClient] = useState<string>("");
+  const [payMethod, setPayMethod] = useState<string>("");
 
   const todayStr = () => new Date().toISOString().slice(0, 10);
   const [expDate, setExpDate] = useState<string>(todayStr());
@@ -59,8 +60,8 @@ export const DailyControl = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!client || !serviceType || !professional) {
-      toast({ title: "Preencha cliente, serviço e profissional", variant: "destructive" });
+    if (!client || !serviceType || !professional || !payMethod) {
+      toast({ title: "Preencha cliente, serviço, profissional e forma de pagamento", variant: "destructive" });
       return;
     }
     // Validate stock before deducting anything
@@ -84,21 +85,23 @@ export const DailyControl = () => {
     }
     const tipValue = parseFloat(tip.replace(",", ".")) || 0;
     const totalIn = numericValue + productsTotal + tipValue;
+    const payLabel = payMethod === "debito" ? "Débito" : payMethod === "credito" ? "Crédito" : "PIX";
     if (totalIn > 0) {
       addIncome({
         date: todayStr(),
-        description: `Atendimento ${client}${serviceType ? ` (${serviceType})` : ""}`,
+        description: `Atendimento ${client}${serviceType ? ` (${serviceType})` : ""} — ${payLabel}`,
         amount: totalIn,
       });
     }
     toast({
       title: "Atendimento registrado",
-      description: `${client} • ${brl(numericValue + productsTotal)} • Comissão ${brl(commission)}`,
+      description: `${client} • ${brl(numericValue + productsTotal)} • ${payLabel} • Comissão ${brl(commission)}`,
     });
     setItems([]);
     setClient("");
     setTotalValue("");
     setTip("");
+    setPayMethod("");
   };
 
   const criticalStock = products
@@ -243,6 +246,21 @@ export const DailyControl = () => {
                   />
                 </div>
               </div>
+
+              <div>
+                <Label>Forma de Pagamento</Label>
+                <Select value={payMethod} onValueChange={setPayMethod}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="debito">Débito</SelectItem>
+                    <SelectItem value="credito">Crédito</SelectItem>
+                    <SelectItem value="pix">PIX</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
 
               <div className="bg-muted/50 p-3 rounded-md flex justify-between items-center">
                 <div className="text-sm">

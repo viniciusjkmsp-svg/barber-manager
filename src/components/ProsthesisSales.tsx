@@ -357,7 +357,7 @@ export const ProsthesisSales = () => {
                       <Input value={saleForm.whatsapp} onChange={(e) => setSaleForm({ ...saleForm, whatsapp: e.target.value })} placeholder="(11) 99999-0000" />
                     </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
                       <Label>Valor (R$)</Label>
                       <Input type="number" step="0.01" placeholder="0,00" value={saleForm.value} onChange={(e) => setSaleForm({ ...saleForm, value: e.target.value })} />
@@ -366,11 +366,61 @@ export const ProsthesisSales = () => {
                       <Label>Parcelas</Label>
                       <Input type="number" min="1" value={saleForm.installments} onChange={(e) => setSaleForm({ ...saleForm, installments: e.target.value })} />
                     </div>
-                    <div>
-                      <Label>Já pagas</Label>
-                      <Input type="number" min="0" value={saleForm.installmentsPaid} onChange={(e) => setSaleForm({ ...saleForm, installmentsPaid: e.target.value })} />
-                    </div>
                   </div>
+
+                  {/* Formas de pagamento */}
+                  <div className="space-y-2 border rounded-md p-3 bg-muted/30">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs uppercase tracking-wide text-muted-foreground">Forma de pagamento</Label>
+                      <label className="flex items-center gap-2 text-xs cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={saleForm.useSecond}
+                          onChange={(e) => setSaleForm({ ...saleForm, useSecond: e.target.checked })}
+                        />
+                        Dividir em 2 formas
+                      </label>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs">Método {saleForm.useSecond ? "1" : ""}</Label>
+                        <Select value={saleForm.payMethod1} onValueChange={(v: PayMethod) => setSaleForm({ ...saleForm, payMethod1: v })}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="debito">Débito</SelectItem>
+                            <SelectItem value="credito">Crédito</SelectItem>
+                            <SelectItem value="pix">PIX</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {saleForm.useSecond && (
+                        <div>
+                          <Label className="text-xs">Valor pago (R$)</Label>
+                          <Input type="number" step="0.01" placeholder={numeric ? (numeric / 2).toFixed(2) : "0,00"} value={saleForm.payAmount1} onChange={(e) => setSaleForm({ ...saleForm, payAmount1: e.target.value })} />
+                        </div>
+                      )}
+                    </div>
+                    {saleForm.useSecond && (
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label className="text-xs">Método 2</Label>
+                          <Select value={saleForm.payMethod2} onValueChange={(v: PayMethod) => setSaleForm({ ...saleForm, payMethod2: v })}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="debito">Débito</SelectItem>
+                              <SelectItem value="credito">Crédito</SelectItem>
+                              <SelectItem value="pix">PIX</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label className="text-xs">Valor pago (R$)</Label>
+                          <Input type="number" step="0.01" placeholder={numeric ? (numeric / 2).toFixed(2) : "0,00"} value={saleForm.payAmount2} onChange={(e) => setSaleForm({ ...saleForm, payAmount2: e.target.value })} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   <div>
                     <Label>Contrato / observações</Label>
                     <Textarea rows={2} value={saleForm.notes} onChange={(e) => setSaleForm({ ...saleForm, notes: e.target.value })} placeholder="Cláusulas, garantia, cor/tamanho..." />

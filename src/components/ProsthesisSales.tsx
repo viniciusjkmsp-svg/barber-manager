@@ -35,6 +35,9 @@ const SELLER_LABELS: Record<string, string> = {
 const brl = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 // ---------- Types ----------
+type PayMethod = "debito" | "credito" | "pix";
+const PAY_LABELS: Record<PayMethod, string> = { debito: "Débito", credito: "Crédito", pix: "PIX" };
+
 type Sale = {
   id: string;
   date: string; // yyyy-mm-dd
@@ -44,6 +47,10 @@ type Sale = {
   seller: string; // key
   installments: number; // 1 = à vista
   installmentsPaid: number;
+  payMethod1: PayMethod;
+  payAmount1: number;
+  payMethod2?: PayMethod;
+  payAmount2?: number;
   lastMaintenance?: string; // yyyy-mm-dd
   notes?: string;
 };
@@ -111,7 +118,11 @@ export const ProsthesisSales = () => {
     value: "",
     seller: "",
     installments: "1",
-    installmentsPaid: "1",
+    payMethod1: "pix" as PayMethod,
+    payAmount1: "",
+    useSecond: false,
+    payMethod2: "credito" as PayMethod,
+    payAmount2: "",
     notes: "",
   });
 
@@ -128,6 +139,16 @@ export const ProsthesisSales = () => {
       toast.error("Preencha cliente, valor e vendedor");
       return;
     }
+    const amt1Raw = parseFloat(saleForm.payAmount1.replace(",", ".")) || 0;
+    const amt2Raw = parseFloat(saleForm.payAmount2.replace(",", ".")) || 0;
+    const payAmount1 = saleForm.useSecond ? (amt1Raw || numeric / 2) : numeric;
+    const payAmount2 = saleForm.useSecond ? (amt2Raw || numeric - payAmount1) : undefined;
+
+    if (saleForm.useSecond && Math.abs((payAmount1 + (payAmount2 || 0)) - numeric) > 0.01) {
+      toast.error("A soma dos dois pagamentos precisa ser igual ao valor da venda");
+      return;
+    }
+
     const s: Sale = {
       id: crypto.randomUUID(),
       date: saleForm.date,
@@ -136,13 +157,17 @@ export const ProsthesisSales = () => {
       value: numeric,
       seller: saleForm.seller,
       installments: installmentsNum,
-      installmentsPaid: Math.min(parseInt(saleForm.installmentsPaid) || 1, installmentsNum),
+      installmentsPaid: 0,
+      payMethod1: saleForm.payMethod1,
+      payAmount1,
+      payMethod2: saleForm.useSecond ? saleForm.payMethod2 : undefined,
+      payAmount2,
       lastMaintenance: undefined,
       notes: saleForm.notes || undefined,
     };
     setSales((p) => [s, ...p]);
-    setSaleForm({ ...saleForm, client: "", whatsapp: "", value: "", notes: "" });
-    toast.success("Venda registrada");
+    setSaleForm({ ...saleForm, client: "", whatsapp: "", value: "", payAmount1: "", payAmount2: "", notes: "" });
+    toast.success("Venda registrada — cliente adicionado ao controle de manutenção");
   };
 
   const removeSale = (id: string) => setSales((p) => p.filter((s) => s.id !== id));
@@ -256,7 +281,7 @@ export const ProsthesisSales = () => {
 
   return (
     <div>
-      <h2 className="text-3xl font-bold text-foreground mb-6">Prótese Capilar & Mentoria</h2>
+      <h2 className="text-3xl font-bold text-foreground mb-6">Vendas & Mentoria</h2>
 
       <Tabs defaultValue="vendas">
         <TabsList>
@@ -332,7 +357,7 @@ export const ProsthesisSales = () => {
                       <Input value={saleForm.whatsapp} onChange={(e) => setSaleForm({ ...saleForm, whatsapp: e.target.value })} placeholder="(11) 99999-0000" />
                     </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
                       <Label>Valor (R$)</Label>
                       <Input type="number" step="0.01" placeholder="0,00" value={saleForm.value} onChange={(e) => setSaleForm({ ...saleForm, value: e.target.value })} />
@@ -341,11 +366,61 @@ export const ProsthesisSales = () => {
                       <Label>Parcelas</Label>
                       <Input type="number" min="1" value={saleForm.installments} onChange={(e) => setSaleForm({ ...saleForm, installments: e.target.value })} />
                     </div>
-                    <div>
-                      <Label>Já pagas</Label>
-                      <Input type="number" min="0" value={saleForm.installmentsPaid} onChange={(e) => setSaleForm({ ...saleForm, installmentsPaid: e.target.value })} />
-                    </div>
                   </div>
+
+                  {/* Formas de pagamento */}
+                  <div className="space-y-2 border rounded-md p-3 bg-muted/30">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs uppercase tracking-wide text-muted-foreground">Forma de pagamento</Label>
+                      <label className="flex items-center gap-2 text-xs cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={saleForm.useSecond}
+                          onChange={(e) => setSaleForm({ ...saleForm, useSecond: e.target.checked })}
+                        />
+                        Dividir em 2 formas
+                      </label>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs">Método {saleForm.useSecond ? "1" : ""}</Label>
+                        <Select value={saleForm.payMethod1} onValueChange={(v: PayMethod) => setSaleForm({ ...saleForm, payMethod1: v })}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="debito">Débito</SelectItem>
+                            <SelectItem value="credito">Crédito</SelectItem>
+                            <SelectItem value="pix">PIX</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {saleForm.useSecond && (
+                        <div>
+                          <Label className="text-xs">Valor pago (R$)</Label>
+                          <Input type="number" step="0.01" placeholder={numeric ? (numeric / 2).toFixed(2) : "0,00"} value={saleForm.payAmount1} onChange={(e) => setSaleForm({ ...saleForm, payAmount1: e.target.value })} />
+                        </div>
+                      )}
+                    </div>
+                    {saleForm.useSecond && (
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label className="text-xs">Método 2</Label>
+                          <Select value={saleForm.payMethod2} onValueChange={(v: PayMethod) => setSaleForm({ ...saleForm, payMethod2: v })}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="debito">Débito</SelectItem>
+                              <SelectItem value="credito">Crédito</SelectItem>
+                              <SelectItem value="pix">PIX</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label className="text-xs">Valor pago (R$)</Label>
+                          <Input type="number" step="0.01" placeholder={numeric ? (numeric / 2).toFixed(2) : "0,00"} value={saleForm.payAmount2} onChange={(e) => setSaleForm({ ...saleForm, payAmount2: e.target.value })} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   <div>
                     <Label>Contrato / observações</Label>
                     <Textarea rows={2} value={saleForm.notes} onChange={(e) => setSaleForm({ ...saleForm, notes: e.target.value })} placeholder="Cláusulas, garantia, cor/tamanho..." />
@@ -382,18 +457,19 @@ export const ProsthesisSales = () => {
                 <Alert className="mb-3">
                   <Info className="h-4 w-4" />
                   <AlertDescription className="text-xs">
-                    Prazo recomendado: <b>30-45 dias</b> entre manutenções. Registre cada retoque pra manter a receita recorrente ativa.
+                    Toda venda de prótese entra automaticamente aqui. Prazo recomendado: <b>30-45 dias</b> entre manutenções.
                   </AlertDescription>
                 </Alert>
-                {sales.filter((s) => maintStatus(s).kind !== "ok").length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-6">Nenhuma manutenção pendente. 🎯</p>
+                {sales.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-6">Nenhum cliente de prótese cadastrado ainda.</p>
                 ) : (
                   <div className="space-y-2 max-h-[380px] overflow-y-auto">
-                    {salesSorted.filter((s) => maintStatus(s).kind !== "ok").map((s) => {
+                    {salesSorted.map((s) => {
                       const st = maintStatus(s);
                       const link = waMaint(s);
+                      const bgCls = st.kind === "overdue" ? "bg-destructive/5 border-destructive/30" : st.kind === "soon" ? "bg-warning/5 border-warning/30" : "bg-success/5 border-success/30";
                       return (
-                        <div key={s.id} className={`border rounded-md p-3 ${st.kind === "overdue" ? "bg-destructive/5 border-destructive/30" : "bg-warning/5 border-warning/30"}`}>
+                        <div key={s.id} className={`border rounded-md p-3 ${bgCls}`}>
                           <div className="flex items-center justify-between mb-2">
                             <div>
                               <div className="font-semibold text-sm">{s.client}</div>
@@ -442,6 +518,7 @@ export const ProsthesisSales = () => {
                         <TableHead>Cliente</TableHead>
                         <TableHead>Vendedor</TableHead>
                         <TableHead className="text-right">Valor</TableHead>
+                        <TableHead>Pagamento</TableHead>
                         <TableHead>Parcelas</TableHead>
                         <TableHead>Manutenção</TableHead>
                         <TableHead className="text-right">Ações</TableHead>
@@ -460,6 +537,18 @@ export const ProsthesisSales = () => {
                             </TableCell>
                             <TableCell className="text-sm">{SELLER_LABELS[s.seller]}</TableCell>
                             <TableCell className="text-right font-mono">{brl(s.value)}</TableCell>
+                            <TableCell className="text-xs">
+                              {s.payMethod1 ? (
+                                <div className="space-y-0.5">
+                                  <div>{PAY_LABELS[s.payMethod1]} · <span className="font-mono">{brl(s.payAmount1 ?? s.value)}</span></div>
+                                  {s.payMethod2 && (
+                                    <div>{PAY_LABELS[s.payMethod2]} · <span className="font-mono">{brl(s.payAmount2 ?? 0)}</span></div>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-muted-foreground">—</span>
+                              )}
+                            </TableCell>
                             <TableCell className="min-w-[140px]">
                               <div className="text-xs mb-1">{s.installmentsPaid}/{s.installments} · {brl(s.value / s.installments)}</div>
                               <Progress value={paidPct} className="h-1.5" />

@@ -16,7 +16,7 @@ export const Layout = ({ children, activeTab, setActiveTab }: LayoutProps) => {
     { id: "monthly", label: "Visualização Mensal", icon: CalendarRange },
     { id: "professionals", label: "Cabeleireiros", icon: Users },
     { id: "clients", label: "Clientes", icon: UserPlus },
-    { id: "prosthesis", label: "Vendas de Prótese", icon: ShoppingCart },
+    { id: "prosthesis", label: "Vendas & Mentoria", icon: ShoppingCart },
     { id: "products", label: "Produtos & Estoque", icon: Package },
     { id: "plans", label: "Planos & Mensalidades", icon: CreditCard },
     { id: "financeiro", label: "Financeiro", icon: DollarSign },

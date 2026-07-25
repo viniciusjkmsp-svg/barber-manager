@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Info, AlertTriangle, CalendarClock, Wrench, GraduationCap, FileText, MessageCircle, Copy, Trash2, Plus, CheckCircle2, DollarSign } from "lucide-react";
 import { toast } from "sonner";
@@ -22,8 +21,8 @@ const SELLER_RATES: Record<string, number> = {
   outros: 0,
 };
 const MANAGER_RATE = 0.04;
-const MAINT_ALERT_DAYS = 30; // avisa a partir de 30d
-const MAINT_OVERDUE_DAYS = 45; // vencido a partir de 45d
+const MAINT_ALERT_DAYS = 30;
+const MAINT_OVERDUE_DAYS = 45;
 
 const SELLER_LABELS: Record<string, string> = {
   vinicius: "Vinicius",
@@ -40,39 +39,40 @@ const PAY_LABELS: Record<PayMethod, string> = { debito: "Débito", credito: "Cr�
 
 type Sale = {
   id: string;
-  date: string; // yyyy-mm-dd
+  date: string;
   client: string;
   whatsapp?: string;
   value: number;
-  seller: string; // key
-  installments: number; // 1 = à vista
+  seller: string;
+  installments: number;
   installmentsPaid: number;
   payMethod1: PayMethod;
   payAmount1: number;
   payMethod2?: PayMethod;
   payAmount2?: number;
-  lastMaintenance?: string; // yyyy-mm-dd
+  lastMaintenance?: string;
   notes?: string;
 };
 
-type CourseStage = "lead" | "matriculado" | "cursando" | "certificado";
-type Lead = {
+type MentoriaSale = {
   id: string;
-  name: string;
+  date: string;
+  client: string;
   whatsapp?: string;
-  stage: CourseStage;
-  modulesTotal: number;
-  modulesDone: number;
-  price: number;
+  value: number;
+  seller: string;
   installments: number;
   installmentsPaid: number;
-  enrolledAt?: string;
+  payMethod1: PayMethod;
+  payAmount1: number;
+  payMethod2?: PayMethod;
+  payAmount2?: number;
   notes?: string;
 };
 
 // ---------- Storage ----------
 const SALES_KEY = "barbearia_prosthesis_sales_v1";
-const LEADS_KEY = "barbearia_course_leads_v1";
+const MENTORIA_KEY = "barbearia_mentoria_sales_v1";
 
 const load = <T,>(k: string, def: T): T => {
   try {
@@ -97,13 +97,6 @@ const maintStatus = (sale: Sale): { label: string; cls: string; days: number; ki
   if (days >= MAINT_OVERDUE_DAYS) return { label: `${days}d — VENCIDA`, cls: "bg-destructive/20 text-destructive border-destructive/40", days, kind: "overdue" };
   if (days >= MAINT_ALERT_DAYS) return { label: `${days}d — atenção`, cls: "bg-warning/20 text-warning border-warning/40", days, kind: "soon" };
   return { label: `${days}d — ok`, cls: "bg-success/20 text-success border-success/40", days, kind: "ok" };
-};
-
-const stageMeta: Record<CourseStage, { label: string; cls: string; order: number }> = {
-  lead: { label: "Lead", cls: "bg-muted text-muted-foreground border-border", order: 0 },
-  matriculado: { label: "Matriculado", cls: "bg-primary/20 text-primary border-primary/40", order: 1 },
-  cursando: { label: "Cursando", cls: "bg-warning/20 text-warning border-warning/40", order: 2 },
-  certificado: { label: "Certificado", cls: "bg-success/20 text-success border-success/40", order: 3 },
 };
 
 export const ProsthesisSales = () => {
@@ -204,7 +197,6 @@ export const ProsthesisSales = () => {
     return `https://wa.me/55${phone}?text=${encodeURIComponent(maintReminder(s))}`;
   };
 
-  // KPIs vendas
   const totalReceita = sales.reduce((s, x) => s + x.value, 0);
   const overdueCount = sales.filter((s) => maintStatus(s).kind === "overdue").length;
   const soonCount = sales.filter((s) => maintStatus(s).kind === "soon").length;
@@ -214,70 +206,84 @@ export const ProsthesisSales = () => {
     return [...sales].sort((a, b) => maintStatus(b).days - maintStatus(a).days);
   }, [sales]);
 
-  // ---------- Course state ----------
-  const [leads, setLeads] = useState<Lead[]>(() => load<Lead[]>(LEADS_KEY, []));
-  useEffect(() => localStorage.setItem(LEADS_KEY, JSON.stringify(leads)), [leads]);
+  // ---------- Mentoria state ----------
+  const [mentorias, setMentorias] = useState<MentoriaSale[]>(() => load<MentoriaSale[]>(MENTORIA_KEY, []));
+  useEffect(() => localStorage.setItem(MENTORIA_KEY, JSON.stringify(mentorias)), [mentorias]);
 
-  const [leadForm, setLeadForm] = useState({
-    name: "",
+  const [mentoriaForm, setMentoriaForm] = useState({
+    date: today(),
+    client: "",
     whatsapp: "",
-    price: "",
+    value: "",
+    seller: "",
     installments: "1",
-    modulesTotal: "6",
+    payMethod1: "pix" as PayMethod,
+    payAmount1: "",
+    useSecond: false,
+    payMethod2: "credito" as PayMethod,
+    payAmount2: "",
     notes: "",
   });
-  const [openLead, setOpenLead] = useState<Lead | null>(null);
 
-  const submitLead = () => {
-    if (!leadForm.name) return toast.error("Nome do lead é obrigatório");
-    const modulesTotal = Math.max(parseInt(leadForm.modulesTotal) || 1, 1);
-    const price = parseFloat(leadForm.price.replace(",", ".")) || 0;
-    const installments = Math.max(parseInt(leadForm.installments) || 1, 1);
-    const l: Lead = {
+  const mNumeric = parseFloat(mentoriaForm.value.replace(",", ".")) || 0;
+  const mSellerRate = SELLER_RATES[mentoriaForm.seller] ?? 0;
+  const mSellerCommission = mNumeric * mSellerRate;
+  const mManagerCommission = mentoriaForm.seller && mentoriaForm.seller !== "vinicius" ? mNumeric * MANAGER_RATE : 0;
+  const mTotalCommissions = mSellerCommission + mManagerCommission;
+  const mInstallmentsNum = Math.max(parseInt(mentoriaForm.installments) || 1, 1);
+  const mPerInstallment = mInstallmentsNum > 0 ? mNumeric / mInstallmentsNum : 0;
+
+  const submitMentoria = () => {
+    if (!mentoriaForm.client || !mNumeric || !mentoriaForm.seller) {
+      toast.error("Preencha cliente, valor e vendedor");
+      return;
+    }
+    const amt1Raw = parseFloat(mentoriaForm.payAmount1.replace(",", ".")) || 0;
+    const amt2Raw = parseFloat(mentoriaForm.payAmount2.replace(",", ".")) || 0;
+    const payAmount1 = mentoriaForm.useSecond ? (amt1Raw || mNumeric / 2) : mNumeric;
+    const payAmount2 = mentoriaForm.useSecond ? (amt2Raw || mNumeric - payAmount1) : undefined;
+
+    if (mentoriaForm.useSecond && Math.abs((payAmount1 + (payAmount2 || 0)) - mNumeric) > 0.01) {
+      toast.error("A soma dos dois pagamentos precisa ser igual ao valor da venda");
+      return;
+    }
+
+    const m: MentoriaSale = {
       id: crypto.randomUUID(),
-      name: leadForm.name,
-      whatsapp: leadForm.whatsapp || undefined,
-      stage: "lead",
-      modulesTotal,
-      modulesDone: 0,
-      price,
-      installments,
+      date: mentoriaForm.date,
+      client: mentoriaForm.client,
+      whatsapp: mentoriaForm.whatsapp || undefined,
+      value: mNumeric,
+      seller: mentoriaForm.seller,
+      installments: mInstallmentsNum,
       installmentsPaid: 0,
-      notes: leadForm.notes || undefined,
+      payMethod1: mentoriaForm.payMethod1,
+      payAmount1,
+      payMethod2: mentoriaForm.useSecond ? mentoriaForm.payMethod2 : undefined,
+      payAmount2,
+      notes: mentoriaForm.notes || undefined,
     };
-    setLeads((p) => [l, ...p]);
-    setLeadForm({ name: "", whatsapp: "", price: "", installments: "1", modulesTotal: "6", notes: "" });
-    toast.success("Lead adicionado ao funil");
+    setMentorias((p) => [m, ...p]);
+    setMentoriaForm({ ...mentoriaForm, client: "", whatsapp: "", value: "", payAmount1: "", payAmount2: "", notes: "" });
+    toast.success("Venda de mentoria registrada");
   };
 
-  const advanceStage = (id: string, stage: CourseStage) => {
-    setLeads((p) =>
-      p.map((l) => {
-        if (l.id !== id) return l;
-        const upd: Lead = { ...l, stage };
-        if (stage === "matriculado" && !l.enrolledAt) upd.enrolledAt = today();
-        if (stage === "certificado") upd.modulesDone = l.modulesTotal;
-        return upd;
+  const removeMentoria = (id: string) => setMentorias((p) => p.filter((m) => m.id !== id));
+  const registerMentoriaPayment = (id: string) => {
+    setMentorias((p) =>
+      p.map((m) => {
+        if (m.id !== id) return m;
+        if (m.installmentsPaid >= m.installments) {
+          toast.info("Parcelas já quitadas");
+          return m;
+        }
+        return { ...m, installmentsPaid: m.installmentsPaid + 1 };
       })
     );
   };
-  const updateLead = (id: string, patch: Partial<Lead>) =>
-    setLeads((p) => p.map((l) => (l.id === id ? { ...l, ...patch } : l)));
 
-  const removeLead = (id: string) => setLeads((p) => p.filter((l) => l.id !== id));
-
-  // KPIs curso
-  const byStage: Record<CourseStage, Lead[]> = {
-    lead: leads.filter((l) => l.stage === "lead"),
-    matriculado: leads.filter((l) => l.stage === "matriculado"),
-    cursando: leads.filter((l) => l.stage === "cursando"),
-    certificado: leads.filter((l) => l.stage === "certificado"),
-  };
-  const totalLeads = leads.length;
-  const enrolled = leads.filter((l) => l.stage !== "lead").length;
-  const convRate = totalLeads > 0 ? Math.round((enrolled / totalLeads) * 100) : 0;
-  const courseRevenue = leads.reduce((s, l) => s + l.price * (l.installmentsPaid / Math.max(l.installments, 1)), 0);
-  const coursePending = leads.reduce((s, l) => s + l.price * (1 - l.installmentsPaid / Math.max(l.installments, 1)), 0);
+  const mentoriaReceita = mentorias.reduce((s, x) => s + x.value, 0);
+  const mentoriaAberto = mentorias.reduce((s, x) => s + (x.value - x.value * (x.installmentsPaid / x.installments)), 0);
 
   return (
     <div>
@@ -286,12 +292,11 @@ export const ProsthesisSales = () => {
       <Tabs defaultValue="vendas">
         <TabsList>
           <TabsTrigger value="vendas"><Wrench className="w-4 h-4 mr-1" /> Vendas & Manutenção</TabsTrigger>
-          <TabsTrigger value="curso"><GraduationCap className="w-4 h-4 mr-1" /> Funil do Curso</TabsTrigger>
+          <TabsTrigger value="mentoria"><GraduationCap className="w-4 h-4 mr-1" /> Mentoria</TabsTrigger>
         </TabsList>
 
         {/* ============ VENDAS + MANUTENÇÃO ============ */}
         <TabsContent value="vendas" className="space-y-6">
-          {/* KPIs */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Card className="bg-gradient-to-r from-stats-entrada to-emerald-400 text-white border-0">
               <CardContent className="p-4 text-center">
@@ -324,7 +329,6 @@ export const ProsthesisSales = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Registrar venda */}
             <Card>
               <CardHeader><CardTitle>Registrar Venda</CardTitle></CardHeader>
               <CardContent>
@@ -368,7 +372,6 @@ export const ProsthesisSales = () => {
                     </div>
                   </div>
 
-                  {/* Formas de pagamento */}
                   <div className="space-y-2 border rounded-md p-3 bg-muted/30">
                     <div className="flex items-center justify-between">
                       <Label className="text-xs uppercase tracking-wide text-muted-foreground">Forma de pagamento</Label>
@@ -446,7 +449,6 @@ export const ProsthesisSales = () => {
               </CardContent>
             </Card>
 
-            {/* Alertas de manutenção */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -503,7 +505,6 @@ export const ProsthesisSales = () => {
             </Card>
           </div>
 
-          {/* Histórico com contratos/parcelas */}
           <Card>
             <CardHeader><CardTitle>Histórico de Vendas</CardTitle></CardHeader>
             <CardContent>
@@ -582,195 +583,227 @@ export const ProsthesisSales = () => {
           </Card>
         </TabsContent>
 
-        {/* ============ FUNIL DO CURSO ============ */}
-        <TabsContent value="curso" className="space-y-6">
-          {/* KPIs curso */}
+        {/* ============ MENTORIA ============ */}
+        <TabsContent value="mentoria" className="space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Card className="bg-gradient-to-r from-muted to-muted/60 border-0">
+            <Card className="bg-gradient-to-r from-stats-entrada to-emerald-400 text-white border-0">
               <CardContent className="p-4 text-center">
-                <p className="text-xs opacity-70">Total leads</p>
-                <p className="text-xl font-bold">{totalLeads}</p>
+                <DollarSign className="w-6 h-6 mx-auto mb-1" />
+                <p className="text-xs opacity-90">Receita mentoria</p>
+                <p className="text-xl font-bold">{brl(mentoriaReceita)}</p>
               </CardContent>
             </Card>
             <Card className="bg-gradient-to-r from-stats-saldo to-cyan-400 text-white border-0">
               <CardContent className="p-4 text-center">
-                <p className="text-xs opacity-90">Conversão em matrícula</p>
-                <p className="text-xl font-bold">{convRate}%</p>
+                <FileText className="w-6 h-6 mx-auto mb-1" />
+                <p className="text-xs opacity-90">A receber (parcelas)</p>
+                <p className="text-xl font-bold">{brl(mentoriaAberto)}</p>
               </CardContent>
             </Card>
-            <Card className="bg-gradient-to-r from-stats-entrada to-emerald-400 text-white border-0">
+            <Card className="bg-gradient-to-r from-muted to-muted/60 border-0">
               <CardContent className="p-4 text-center">
-                <p className="text-xs opacity-90">Recebido</p>
-                <p className="text-xl font-bold">{brl(courseRevenue)}</p>
+                <GraduationCap className="w-6 h-6 mx-auto mb-1" />
+                <p className="text-xs opacity-70">Mentorias vendidas</p>
+                <p className="text-xl font-bold">{mentorias.length}</p>
               </CardContent>
             </Card>
             <Card className="bg-gradient-to-r from-warning to-amber-400 text-white border-0">
               <CardContent className="p-4 text-center">
-                <p className="text-xs opacity-90">A receber</p>
-                <p className="text-xl font-bold">{brl(coursePending)}</p>
+                <DollarSign className="w-6 h-6 mx-auto mb-1" />
+                <p className="text-xs opacity-90">Ticket médio</p>
+                <p className="text-xl font-bold">{brl(mentorias.length ? mentoriaReceita / mentorias.length : 0)}</p>
               </CardContent>
             </Card>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Novo lead */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
-              <CardHeader><CardTitle>Novo Lead do Curso</CardTitle></CardHeader>
-              <CardContent className="space-y-3">
-                <div>
-                  <Label>Nome</Label>
-                  <Input value={leadForm.name} onChange={(e) => setLeadForm({ ...leadForm, name: e.target.value })} />
-                </div>
-                <div>
-                  <Label>WhatsApp</Label>
-                  <Input value={leadForm.whatsapp} onChange={(e) => setLeadForm({ ...leadForm, whatsapp: e.target.value })} placeholder="(11) 99999-0000" />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <Label>Valor (R$)</Label>
-                    <Input type="number" step="0.01" value={leadForm.price} onChange={(e) => setLeadForm({ ...leadForm, price: e.target.value })} />
+              <CardHeader><CardTitle>Registrar Venda de Mentoria</CardTitle></CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label>Data</Label>
+                      <Input type="date" value={mentoriaForm.date} onChange={(e) => setMentoriaForm({ ...mentoriaForm, date: e.target.value })} />
+                    </div>
+                    <div>
+                      <Label>Vendedor</Label>
+                      <Select value={mentoriaForm.seller} onValueChange={(v) => setMentoriaForm({ ...mentoriaForm, seller: v })}>
+                        <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="vinicius">Vinicius</SelectItem>
+                          <SelectItem value="davi">Davi</SelectItem>
+                          <SelectItem value="giovanna">Giovanna</SelectItem>
+                          <SelectItem value="outros">Outro</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
-                  <div>
-                    <Label>Parcelas</Label>
-                    <Input type="number" min="1" value={leadForm.installments} onChange={(e) => setLeadForm({ ...leadForm, installments: e.target.value })} />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label>Cliente</Label>
+                      <Input value={mentoriaForm.client} onChange={(e) => setMentoriaForm({ ...mentoriaForm, client: e.target.value })} placeholder="Nome" />
+                    </div>
+                    <div>
+                      <Label>WhatsApp</Label>
+                      <Input value={mentoriaForm.whatsapp} onChange={(e) => setMentoriaForm({ ...mentoriaForm, whatsapp: e.target.value })} placeholder="(11) 99999-0000" />
+                    </div>
                   </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label>Valor (R$)</Label>
+                      <Input type="number" step="0.01" placeholder="0,00" value={mentoriaForm.value} onChange={(e) => setMentoriaForm({ ...mentoriaForm, value: e.target.value })} />
+                    </div>
+                    <div>
+                      <Label>Parcelas</Label>
+                      <Input type="number" min="1" value={mentoriaForm.installments} onChange={(e) => setMentoriaForm({ ...mentoriaForm, installments: e.target.value })} />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 border rounded-md p-3 bg-muted/30">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs uppercase tracking-wide text-muted-foreground">Forma de pagamento</Label>
+                      <label className="flex items-center gap-2 text-xs cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={mentoriaForm.useSecond}
+                          onChange={(e) => setMentoriaForm({ ...mentoriaForm, useSecond: e.target.checked })}
+                        />
+                        Dividir em 2 formas
+                      </label>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs">Método {mentoriaForm.useSecond ? "1" : ""}</Label>
+                        <Select value={mentoriaForm.payMethod1} onValueChange={(v: PayMethod) => setMentoriaForm({ ...mentoriaForm, payMethod1: v })}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="debito">Débito</SelectItem>
+                            <SelectItem value="credito">Crédito</SelectItem>
+                            <SelectItem value="pix">PIX</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {mentoriaForm.useSecond && (
+                        <div>
+                          <Label className="text-xs">Valor pago (R$)</Label>
+                          <Input type="number" step="0.01" placeholder={mNumeric ? (mNumeric / 2).toFixed(2) : "0,00"} value={mentoriaForm.payAmount1} onChange={(e) => setMentoriaForm({ ...mentoriaForm, payAmount1: e.target.value })} />
+                        </div>
+                      )}
+                    </div>
+                    {mentoriaForm.useSecond && (
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label className="text-xs">Método 2</Label>
+                          <Select value={mentoriaForm.payMethod2} onValueChange={(v: PayMethod) => setMentoriaForm({ ...mentoriaForm, payMethod2: v })}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="debito">Débito</SelectItem>
+                              <SelectItem value="credito">Crédito</SelectItem>
+                              <SelectItem value="pix">PIX</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label className="text-xs">Valor pago (R$)</Label>
+                          <Input type="number" step="0.01" placeholder={mNumeric ? (mNumeric / 2).toFixed(2) : "0,00"} value={mentoriaForm.payAmount2} onChange={(e) => setMentoriaForm({ ...mentoriaForm, payAmount2: e.target.value })} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label>Observações</Label>
+                    <Textarea rows={2} value={mentoriaForm.notes} onChange={(e) => setMentoriaForm({ ...mentoriaForm, notes: e.target.value })} placeholder="Contrato, turma, condições..." />
+                  </div>
+
+                  <div className="bg-muted/50 p-3 rounded-md text-sm space-y-1">
+                    {mInstallmentsNum > 1 && mNumeric > 0 && (
+                      <div className="flex justify-between">
+                        <span>{mInstallmentsNum}× de</span>
+                        <span className="font-semibold">{brl(mPerInstallment)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
+                      <span className="font-semibold">Total Comissões</span>
+                      <span className="font-bold">{brl(mTotalCommissions)}</span>
+                    </div>
+                  </div>
+
+                  <Button className="w-full bg-success hover:bg-success/90" onClick={submitMentoria}>
+                    <Plus className="w-4 h-4 mr-1" /> Registrar Venda
+                  </Button>
                 </div>
-                <div>
-                  <Label>Módulos totais</Label>
-                  <Input type="number" min="1" value={leadForm.modulesTotal} onChange={(e) => setLeadForm({ ...leadForm, modulesTotal: e.target.value })} />
-                </div>
-                <div>
-                  <Label>Observações</Label>
-                  <Textarea rows={2} value={leadForm.notes} onChange={(e) => setLeadForm({ ...leadForm, notes: e.target.value })} />
-                </div>
-                <Button className="w-full" onClick={submitLead}>
-                  <Plus className="w-4 h-4 mr-1" /> Adicionar ao funil
-                </Button>
               </CardContent>
             </Card>
 
-            {/* Kanban do funil */}
-            <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-              {(["lead", "matriculado", "cursando", "certificado"] as CourseStage[]).map((stage) => (
-                <Card key={stage}>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm flex items-center justify-between">
-                      <span className="flex items-center gap-2">
-                        <Badge variant="outline" className={stageMeta[stage].cls}>{stageMeta[stage].label}</Badge>
-                      </span>
-                      <span className="text-xs text-muted-foreground">{byStage[stage].length}</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2 max-h-[300px] overflow-y-auto">
-                    {byStage[stage].length === 0 ? (
-                      <p className="text-xs text-muted-foreground text-center py-3">Vazio</p>
-                    ) : (
-                      byStage[stage].map((l) => {
-                        const modPct = l.modulesTotal > 0 ? (l.modulesDone / l.modulesTotal) * 100 : 0;
-                        return (
-                          <button
-                            key={l.id}
-                            onClick={() => setOpenLead(l)}
-                            className="w-full text-left border rounded-md p-2 hover:bg-muted/50 transition-colors"
-                          >
-                            <div className="font-semibold text-sm">{l.name}</div>
-                            {l.whatsapp && <div className="text-[10px] text-muted-foreground">{l.whatsapp}</div>}
-                            {stage !== "lead" && (
-                              <>
-                                <div className="text-[10px] text-muted-foreground mt-1">Módulos {l.modulesDone}/{l.modulesTotal}</div>
-                                <Progress value={modPct} className="h-1 mt-0.5" />
-                                <div className="text-[10px] mt-1 flex justify-between">
-                                  <span>{l.installmentsPaid}/{l.installments}×</span>
-                                  <span className="font-mono">{brl(l.price * (l.installmentsPaid / Math.max(l.installments, 1)))}</span>
+            <Card>
+              <CardHeader><CardTitle>Histórico de Mentorias</CardTitle></CardHeader>
+              <CardContent>
+                {mentorias.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-6">Nenhuma venda de mentoria registrada ainda.</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Data</TableHead>
+                          <TableHead>Cliente</TableHead>
+                          <TableHead>Vendedor</TableHead>
+                          <TableHead className="text-right">Valor</TableHead>
+                          <TableHead>Pagamento</TableHead>
+                          <TableHead>Parcelas</TableHead>
+                          <TableHead className="text-right">Ações</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {mentorias.map((m) => {
+                          const paidPct = (m.installmentsPaid / m.installments) * 100;
+                          return (
+                            <TableRow key={m.id}>
+                              <TableCell className="text-sm">{new Date(m.date).toLocaleDateString("pt-BR")}</TableCell>
+                              <TableCell>
+                                <div className="font-medium">{m.client}</div>
+                                {m.notes && <div className="text-[10px] text-muted-foreground truncate max-w-[200px]" title={m.notes}>{m.notes}</div>}
+                              </TableCell>
+                              <TableCell className="text-sm">{SELLER_LABELS[m.seller]}</TableCell>
+                              <TableCell className="text-right font-mono">{brl(m.value)}</TableCell>
+                              <TableCell className="text-xs">
+                                <div className="space-y-0.5">
+                                  <div>{PAY_LABELS[m.payMethod1]} · <span className="font-mono">{brl(m.payAmount1 ?? m.value)}</span></div>
+                                  {m.payMethod2 && (
+                                    <div>{PAY_LABELS[m.payMethod2]} · <span className="font-mono">{brl(m.payAmount2 ?? 0)}</span></div>
+                                  )}
                                 </div>
-                              </>
-                            )}
-                          </button>
-                        );
-                      })
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                              </TableCell>
+                              <TableCell className="min-w-[140px]">
+                                <div className="text-xs mb-1">{m.installmentsPaid}/{m.installments} · {brl(m.value / m.installments)}</div>
+                                <Progress value={paidPct} className="h-1.5" />
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex gap-1 justify-end">
+                                  {m.installmentsPaid < m.installments && (
+                                    <Button size="sm" variant="ghost" onClick={() => registerMentoriaPayment(m.id)} title="Registrar parcela paga">
+                                      <DollarSign className="w-3 h-3" />
+                                    </Button>
+                                  )}
+                                  <Button size="sm" variant="ghost" onClick={() => removeMentoria(m.id)}>
+                                    <Trash2 className="w-3 h-3 text-destructive" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
       </Tabs>
-
-      {/* Dialog lead */}
-      <Dialog open={!!openLead} onOpenChange={(o) => !o && setOpenLead(null)}>
-        <DialogContent className="max-w-2xl">
-          {openLead && (() => {
-            const l = leads.find((x) => x.id === openLead.id);
-            if (!l) return null;
-            const modPct = l.modulesTotal > 0 ? (l.modulesDone / l.modulesTotal) * 100 : 0;
-            return (
-              <>
-                <DialogHeader>
-                  <DialogTitle className="flex items-center gap-2">
-                    <GraduationCap className="w-5 h-5" /> {l.name}
-                    <Badge variant="outline" className={stageMeta[l.stage].cls}>{stageMeta[l.stage].label}</Badge>
-                  </DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    {(["lead", "matriculado", "cursando", "certificado"] as CourseStage[]).map((s) => (
-                      <Button
-                        key={s}
-                        size="sm"
-                        variant={l.stage === s ? "default" : "outline"}
-                        onClick={() => advanceStage(l.id, s)}
-                      >
-                        {stageMeta[s].label}
-                      </Button>
-                    ))}
-                  </div>
-
-                  <div>
-                    <Label>Progresso: Módulos {l.modulesDone}/{l.modulesTotal}</Label>
-                    <Progress value={modPct} className="h-2 mt-1" />
-                    <div className="flex gap-2 mt-2">
-                      <Button size="sm" variant="outline" onClick={() => updateLead(l.id, { modulesDone: Math.max(0, l.modulesDone - 1) })}>-1 módulo</Button>
-                      <Button size="sm" onClick={() => updateLead(l.id, { modulesDone: Math.min(l.modulesTotal, l.modulesDone + 1), stage: l.stage === "matriculado" ? "cursando" : l.stage })}>+1 módulo</Button>
-                      {l.modulesDone >= l.modulesTotal && l.stage !== "certificado" && (
-                        <Button size="sm" className="bg-success hover:bg-success/90" onClick={() => advanceStage(l.id, "certificado")}>
-                          <CheckCircle2 className="w-3 h-3 mr-1" /> Emitir certificado
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label>Parcelas pagas: {l.installmentsPaid}/{l.installments}</Label>
-                    <Progress value={(l.installmentsPaid / Math.max(l.installments, 1)) * 100} className="h-2 mt-1" />
-                    <div className="flex gap-2 mt-2 items-center">
-                      <Button size="sm" variant="outline" onClick={() => updateLead(l.id, { installmentsPaid: Math.max(0, l.installmentsPaid - 1) })}>-1 parcela</Button>
-                      <Button size="sm" onClick={() => updateLead(l.id, { installmentsPaid: Math.min(l.installments, l.installmentsPaid + 1) })}>
-                        <DollarSign className="w-3 h-3 mr-1" /> Registrar pagamento
-                      </Button>
-                      <span className="text-xs text-muted-foreground ml-auto">
-                        Recebido: {brl(l.price * (l.installmentsPaid / Math.max(l.installments, 1)))}
-                      </span>
-                    </div>
-                  </div>
-
-                  {l.notes && (
-                    <div className="text-xs bg-muted/50 rounded-md p-2">
-                      <b>Notas:</b> {l.notes}
-                    </div>
-                  )}
-                </div>
-                <DialogFooter>
-                  <Button variant="destructive" size="sm" onClick={() => { removeLead(l.id); setOpenLead(null); }}>
-                    <Trash2 className="w-3 h-3 mr-1" /> Remover
-                  </Button>
-                  <Button variant="outline" onClick={() => setOpenLead(null)}>Fechar</Button>
-                </DialogFooter>
-              </>
-            );
-          })()}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

@@ -518,6 +518,7 @@ export const ProsthesisSales = () => {
                         <TableHead>Cliente</TableHead>
                         <TableHead>Vendedor</TableHead>
                         <TableHead className="text-right">Valor</TableHead>
+                        <TableHead>Pagamento</TableHead>
                         <TableHead>Parcelas</TableHead>
                         <TableHead>Manutenção</TableHead>
                         <TableHead className="text-right">Ações</TableHead>
@@ -536,6 +537,18 @@ export const ProsthesisSales = () => {
                             </TableCell>
                             <TableCell className="text-sm">{SELLER_LABELS[s.seller]}</TableCell>
                             <TableCell className="text-right font-mono">{brl(s.value)}</TableCell>
+                            <TableCell className="text-xs">
+                              {s.payMethod1 ? (
+                                <div className="space-y-0.5">
+                                  <div>{PAY_LABELS[s.payMethod1]} · <span className="font-mono">{brl(s.payAmount1 ?? s.value)}</span></div>
+                                  {s.payMethod2 && (
+                                    <div>{PAY_LABELS[s.payMethod2]} · <span className="font-mono">{brl(s.payAmount2 ?? 0)}</span></div>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-muted-foreground">—</span>
+                              )}
+                            </TableCell>
                             <TableCell className="min-w-[140px]">
                               <div className="text-xs mb-1">{s.installmentsPaid}/{s.installments} · {brl(s.value / s.installments)}</div>
                               <Progress value={paidPct} className="h-1.5" />

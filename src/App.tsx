@@ -10,30 +10,32 @@ import OAuthConsent from "./pages/OAuthConsent";
 import { ProductsProvider } from "@/hooks/useProducts";
 import { ClientsProvider } from "@/hooks/useClients";
 import { FinanceProvider } from "@/hooks/useFinance";
+import { ProfileProvider } from "@/context/ProfileContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ProductsProvider>
-      <ClientsProvider>
-        <FinanceProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </TooltipProvider>
-        </FinanceProvider>
-      </ClientsProvider>
-    </ProductsProvider>
+    <ProfileProvider>
+      <ProductsProvider>
+        <ClientsProvider>
+          <FinanceProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </TooltipProvider>
+          </FinanceProvider>
+        </ClientsProvider>
+      </ProductsProvider>
+    </ProfileProvider>
   </QueryClientProvider>
 );
 

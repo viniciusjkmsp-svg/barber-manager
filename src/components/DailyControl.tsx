@@ -24,6 +24,8 @@ export const DailyControl = () => {
   const [totalValue, setTotalValue] = useState<string>("");
   const [tip, setTip] = useState<string>("");
   const [client, setClient] = useState<string>("");
+  const [clientPhone, setClientPhone] = useState<string>("");
+  const [clientEmail, setClientEmail] = useState<string>("");
   const [payMethod, setPayMethod] = useState<string>("");
 
   const todayStr = () => new Date().toISOString().slice(0, 10);
@@ -99,6 +101,8 @@ export const DailyControl = () => {
     });
     setItems([]);
     setClient("");
+    setClientPhone("");
+    setClientEmail("");
     setTotalValue("");
     setTip("");
     setPayMethod("");
@@ -133,6 +137,28 @@ export const DailyControl = () => {
                 <div>
                   <Label htmlFor="clienteAtendimento">Cliente</Label>
                   <Input id="clienteAtendimento" placeholder="Nome do cliente" value={client} onChange={(e) => setClient(e.target.value)} />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="telefoneAtendimento">Telefone / WhatsApp</Label>
+                    <Input
+                      id="telefoneAtendimento"
+                      type="tel"
+                      placeholder="(11) 99999-9999"
+                      value={clientPhone}
+                      onChange={(e) => setClientPhone(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="emailAtendimento">E-mail</Label>
+                    <Input
+                      id="emailAtendimento"
+                      type="email"
+                      placeholder="cliente@email.com"
+                      value={clientEmail}
+                      onChange={(e) => setClientEmail(e.target.value)}
+                    />
+                  </div>
                 </div>
                 <div>
                   <Label>Tipo de Serviço</Label>

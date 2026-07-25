@@ -10,6 +10,7 @@ import { ProsthesisSales } from "@/components/ProsthesisSales";
 import { ProductsInventory } from "@/components/ProductsInventory";
 import { SubscriptionPlans } from "@/components/SubscriptionPlans";
 import { Clients } from "@/components/Clients";
+import { Financeiro } from "@/components/Financeiro";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -36,6 +37,8 @@ const Index = () => {
         return <SubscriptionPlans />;
       case "clients":
         return <Clients />;
+      case "financeiro":
+        return <Financeiro />;
       default:
         return <Dashboard />;
     }

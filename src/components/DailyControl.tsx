@@ -101,6 +101,8 @@ export const DailyControl = () => {
     });
     setItems([]);
     setClient("");
+    setClientPhone("");
+    setClientEmail("");
     setTotalValue("");
     setTip("");
     setPayMethod("");

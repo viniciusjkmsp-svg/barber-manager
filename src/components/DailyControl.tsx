@@ -267,34 +267,48 @@ export const DailyControl = () => {
               <CardTitle>Lançar Despesa</CardTitle>
             </CardHeader>
             <CardContent>
-              <form className="space-y-4">
+              <form
+                className="space-y-4"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const amount = parseFloat(expValue.replace(",", ".")) || 0;
+                  if (!expDate || !expDesc || !amount || !expCategory) {
+                    toast({ title: "Preencha todos os campos da despesa", variant: "destructive" });
+                    return;
+                  }
+                  addExpense({ date: expDate, description: expDesc, amount, category: expCategory });
+                  toast({ title: "Despesa registrada", description: `${expDesc} • ${brl(amount)}` });
+                  setExpDesc("");
+                  setExpValue("");
+                  setExpCategory("");
+                }}
+              >
                 <div>
                   <Label htmlFor="dataDespesa">Data</Label>
-                  <Input type="date" id="dataDespesa" />
+                  <Input type="date" id="dataDespesa" value={expDate} onChange={(e) => setExpDate(e.target.value)} />
                 </div>
                 <div>
                   <Label htmlFor="descricaoDespesa">Descrição</Label>
-                  <Input id="descricaoDespesa" placeholder="Descrição da despesa" />
+                  <Input id="descricaoDespesa" placeholder="Descrição da despesa" value={expDesc} onChange={(e) => setExpDesc(e.target.value)} />
                 </div>
                 <div>
                   <Label htmlFor="valorDespesa">Valor (R$)</Label>
-                  <Input type="number" step="0.01" id="valorDespesa" placeholder="0,00" />
+                  <Input type="number" step="0.01" id="valorDespesa" placeholder="0,00" value={expValue} onChange={(e) => setExpValue(e.target.value)} />
                 </div>
                 <div>
                   <Label htmlFor="categoriaDespesa">Categoria</Label>
-                  <Select>
+                  <Select value={expCategory} onValueChange={(v) => setExpCategory(v as ExpenseCategory)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="despesas">Despesas Operacionais</SelectItem>
-                      <SelectItem value="folha">Folha de Pagamento</SelectItem>
-                      <SelectItem value="impostos">Impostos</SelectItem>
-                      <SelectItem value="outros">Outros</SelectItem>
+                      {EXPENSE_CATEGORIES.map((c) => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
-                <Button className="w-full">Registrar Despesa</Button>
+                <Button type="submit" className="w-full">Registrar Despesa</Button>
               </form>
             </CardContent>
           </Card>

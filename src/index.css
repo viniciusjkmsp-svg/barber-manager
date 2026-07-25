@@ -2,75 +2,117 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* MS Manager design system — gold #C9A84C on near-black dark / off-white light.
+   All colors defined as HSL. */
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 225 15% 15%;
+    /* Light theme (MS Manager) */
+    --background: 240 7% 96%;        /* #f5f5f7 */
+    --foreground: 0 0% 10%;          /* #1a1a1a */
 
-    --card: 0 0% 100%;
-    --card-foreground: 225 15% 15%;
+    --card: 0 0% 100%;               /* #ffffff */
+    --card-foreground: 0 0% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 225 15% 15%;
+    --popover-foreground: 0 0% 10%;
 
-    --primary: 225 45% 10%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 44 53% 54%;           /* #C9A84C gold */
+    --primary-foreground: 0 0% 5%;   /* #0d0d0d */
 
-    --secondary: 225 25% 25%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 10%;
 
-    --muted: 220 15% 95%;
-    --muted-foreground: 225 10% 45%;
+    --muted: 0 0% 94%;
+    --muted-foreground: 0 0% 40%;    /* #666 */
 
-    --accent: 210 75% 30%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 44 53% 54%;
+    --accent-foreground: 0 0% 5%;
 
-    --destructive: 0 75% 60%;
+    --destructive: 0 68% 62%;        /* #e05c5c */
     --destructive-foreground: 0 0% 100%;
 
-    --success: 150 60% 45%;
+    --success: 148 40% 48%;          /* #4caf7d */
     --success-foreground: 0 0% 100%;
 
-    --border: 220 15% 88%;
-    --input: 220 15% 88%;
-    --ring: 225 45% 10%;
+    --border: 0 0% 88%;              /* #e0e0e0 */
+    --input: 0 0% 88%;
+    --ring: 44 53% 54%;
 
-    --radius: 0.5rem;
+    --radius: 0.625rem;
 
-    --sidebar-background: 225 35% 18%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 225 45% 10%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 75% 30%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 225 25% 25%;
-    --sidebar-ring: 210 75% 30%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 40%;
+    --sidebar-primary: 44 53% 54%;
+    --sidebar-primary-foreground: 0 0% 5%;
+    --sidebar-accent: 44 53% 54%;
+    --sidebar-accent-foreground: 0 0% 5%;
+    --sidebar-border: 0 0% 88%;
+    --sidebar-ring: 44 53% 54%;
 
-    /* Custom stats cards */
-    --stats-entrada-from: 150 60% 45%;
-    --stats-entrada-to: 165 55% 50%;
-    --stats-saida-from: 355 75% 55%;
-    --stats-saida-to: 340 70% 60%;
-    --stats-saldo-from: 210 75% 50%;
-    --stats-saldo-to: 195 70% 55%;
+    /* Stats gradients (kept semantic) */
+    --stats-entrada-from: 148 40% 48%;
+    --stats-entrada-to: 148 40% 55%;
+    --stats-saida-from: 0 68% 62%;
+    --stats-saida-to: 0 68% 68%;
+    --stats-saldo-from: 44 53% 54%;
+    --stats-saldo-to: 41 63% 45%;
 
     /* Service badges */
     --badge-corte: 195 75% 45%;
-    --badge-barba: 150 60% 45%;
+    --badge-barba: 148 40% 48%;
     --badge-sobrancelha: 270 60% 55%;
-    --badge-luzes: 30 90% 55%;
+    --badge-luzes: 44 53% 54%;
     --badge-alisamento: 330 70% 55%;
     --badge-botox: 165 55% 50%;
     --badge-bebida: 265 80% 50%;
 
     /* Stock status */
-    --stock-ok: 150 60% 45%;
-    --stock-low: 45 90% 50%;
-    --stock-critical: 0 75% 55%;
+    --stock-ok: 148 40% 48%;
+    --stock-low: 38 76% 59%;         /* #e0a44c */
+    --stock-critical: 0 68% 62%;
+  }
+
+  .dark {
+    --background: 0 0% 5%;           /* #0d0d0d */
+    --foreground: 240 7% 96%;        /* #f5f5f7 */
+
+    --card: 0 0% 9%;                 /* #161616 */
+    --card-foreground: 240 7% 96%;
+
+    --popover: 0 0% 9%;
+    --popover-foreground: 240 7% 96%;
+
+    --primary: 44 53% 54%;           /* gold */
+    --primary-foreground: 0 0% 5%;
+
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 240 7% 96%;
+
+    --muted: 0 0% 12%;               /* #1e1e1e */
+    --muted-foreground: 0 0% 45%;
+
+    --accent: 44 53% 54%;
+    --accent-foreground: 0 0% 5%;
+
+    --destructive: 0 68% 62%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 148 40% 48%;
+    --success-foreground: 0 0% 5%;
+
+    --border: 0 0% 12%;              /* #1e1e1e */
+    --input: 0 0% 16%;               /* #2a2a2a */
+    --ring: 44 53% 54%;
+
+    --sidebar-background: 0 0% 7%;   /* #111 */
+    --sidebar-foreground: 0 0% 40%;
+    --sidebar-primary: 44 53% 54%;
+    --sidebar-primary-foreground: 0 0% 5%;
+    --sidebar-accent: 44 53% 54%;
+    --sidebar-accent-foreground: 0 0% 5%;
+    --sidebar-border: 0 0% 12%;
+    --sidebar-ring: 44 53% 54%;
   }
 }
 
@@ -79,7 +121,26 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
-  body {
+  html, body, #root {
     @apply bg-background text-foreground;
+    font-family: 'Segoe UI', system-ui, -apple-system, 'Inter', sans-serif;
   }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted));
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.5);
+  }
+}
+
+@layer components {
+  /* Gold accent utility (MS Manager signature) */
+  .text-gold { color: #C9A84C; }
+  .bg-gold { background-color: #C9A84C; }
+  .border-gold { border-color: #C9A84C; }
 }

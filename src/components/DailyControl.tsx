@@ -244,7 +244,22 @@ export const DailyControl = () => {
                     value={tip}
                     onChange={(e) => setTip(e.target.value)}
                   />
-                </div>
+              </div>
+
+              <div>
+                <Label>Forma de Pagamento</Label>
+                <Select value={payMethod} onValueChange={setPayMethod}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="debito">Débito</SelectItem>
+                    <SelectItem value="credito">Crédito</SelectItem>
+                    <SelectItem value="pix">PIX</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               </div>
 
               <div className="bg-muted/50 p-3 rounded-md flex justify-between items-center">

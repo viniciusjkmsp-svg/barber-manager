@@ -82,6 +82,15 @@ export const DailyControl = () => {
       if (!it.productId) continue;
       sellProduct(it.productId, it.quantity);
     }
+    const tipValue = parseFloat(tip.replace(",", ".")) || 0;
+    const totalIn = numericValue + productsTotal + tipValue;
+    if (totalIn > 0) {
+      addIncome({
+        date: todayStr(),
+        description: `Atendimento ${client}${serviceType ? ` (${serviceType})` : ""}`,
+        amount: totalIn,
+      });
+    }
     toast({
       title: "Atendimento registrado",
       description: `${client} • ${brl(numericValue + productsTotal)} • Comissão ${brl(commission)}`,

@@ -1,16 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  LayoutDashboard,
-  Calendar,
-  CalendarDays,
-  CalendarRange,
-  Users,
-  ShoppingCart,
-  Package,
-  CreditCard,
-  CalendarCheck,
-  UserPlus,
-  DollarSign,
   LogOut,
   Menu,
   X,
@@ -24,6 +13,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useProfile } from "@/context/ProfileContext";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -35,30 +25,11 @@ const GOLD = "#C9A84C";
 
 export const Layout = ({ children, activeTab, setActiveTab }: LayoutProps) => {
   const navigate = useNavigate();
+  const { profile: currentProfile, setProfile: setCurrentProfile, profiles, navItems } = useProfile();
   const [expanded, setExpanded] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
-  const profiles = [
-    { initial: "M", name: "Marcos", role: "Proprietário", color: "#C9A84C" },
-    { initial: "S", name: "Silvia", role: "Sócia", color: "#a67dd4" },
-    { initial: "G", name: "Gerente", role: "Gerente", color: "#4caf7d" },
-    { initial: "R", name: "Recepção", role: "Recepção", color: "#4c9af5" },
-    { initial: "B", name: "Barbeiro", role: "Barbeiro", color: "#e05c5c" },
-    { initial: "Mk", name: "Marketing", role: "Marketing", color: "#e0a44c" },
-  ];
-  const [currentProfile, setCurrentProfile] = useState(() => {
-    if (typeof window === "undefined") return profiles[0];
-    const saved = localStorage.getItem("ms-profile");
-    if (saved) {
-      const found = profiles.find((p) => p.name === saved);
-      if (found) return found;
-    }
-    return profiles[0];
-  });
-  useEffect(() => {
-    localStorage.setItem("ms-profile", currentProfile.name);
-  }, [currentProfile]);
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
       if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
@@ -85,20 +56,6 @@ export const Layout = ({ children, activeTab, setActiveTab }: LayoutProps) => {
     toast.success("Sessão encerrada");
     navigate("/login", { replace: true });
   };
-
-  const navItems = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "daily", label: "Controle Diário", icon: Calendar },
-    { id: "agenda", label: "Agenda", icon: CalendarCheck },
-    { id: "weekly", label: "Semanal", icon: CalendarDays },
-    { id: "monthly", label: "Mensal", icon: CalendarRange },
-    { id: "professionals", label: "Cabeleireiros", icon: Users },
-    { id: "clients", label: "Clientes", icon: UserPlus },
-    { id: "prosthesis", label: "Vendas & Mentoria", icon: ShoppingCart },
-    { id: "products", label: "Estoque", icon: Package },
-    { id: "plans", label: "Planos", icon: CreditCard },
-    { id: "financeiro", label: "Financeiro", icon: DollarSign },
-  ];
 
   const isLight = theme === "light";
   const pick = (dark: string, light: string) => (isLight ? light : dark);

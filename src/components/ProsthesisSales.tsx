@@ -74,24 +74,16 @@ export const ProsthesisSales = () => {
                     <SelectValue placeholder="Selecione..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="vinicius">Vinicius - 7%</SelectItem>
-                    <SelectItem value="davi">Davi - 3%</SelectItem>
-                    <SelectItem value="giovanna">Giovanna - 3%</SelectItem>
+                    <SelectItem value="vinicius">Vinicius</SelectItem>
+                    <SelectItem value="davi">Davi</SelectItem>
+                    <SelectItem value="giovanna">Giovanna</SelectItem>
                     <SelectItem value="outros">Outro</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="grid grid-cols-1 gap-2 bg-muted/50 p-3 rounded-md">
-                <div className="flex justify-between text-sm">
-                  <span>Comissão Vendedor ({(sellerRate * 100).toFixed(0)}%)</span>
-                  <span className="font-semibold">{brl(sellerCommission)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Vinicius (Gestor {(MANAGER_RATE * 100).toFixed(0)}%) {seller === "vinicius" && "— não se aplica"}</span>
-                  <span className="font-semibold">{brl(managerCommission)}</span>
-                </div>
-                <div className="flex justify-between border-t pt-2 mt-1">
+                <div className="flex justify-between">
                   <span className="font-semibold">Total Comissões</span>
                   <span className="font-bold">{brl(totalCommissions)}</span>
                 </div>
@@ -108,24 +100,10 @@ export const ProsthesisSales = () => {
               <CardTitle>Resumo</CardTitle>
             </CardHeader>
             <CardContent>
-              <table className="w-full mb-4">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-2 text-sm font-semibold">Vendedor</th>
-                    <th className="text-right py-2 text-sm font-semibold">%</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b"><td className="py-2 text-sm">Vinicius (vende)</td><td className="py-2 text-sm text-right">7% (sem gestor)</td></tr>
-                  <tr className="border-b"><td className="py-2 text-sm">Davi</td><td className="py-2 text-sm text-right">3%</td></tr>
-                  <tr className="border-b"><td className="py-2 text-sm">Giovanna</td><td className="py-2 text-sm text-right">3%</td></tr>
-                  <tr><td className="py-2 text-sm">Vinicius (Gestor)</td><td className="py-2 text-sm text-right">4% sobre vendas de outros</td></tr>
-                </tbody>
-              </table>
               <Alert>
                 <Info className="h-4 w-4" />
                 <AlertDescription>
-                  Quando <strong>Vinicius vende</strong>, ele recebe apenas <strong>7%</strong>. O 4% de gestor incide somente sobre vendas de <strong>outros vendedores</strong>.
+                  As comissões são calculadas automaticamente conforme o vendedor selecionado.
                 </AlertDescription>
               </Alert>
             </CardContent>
@@ -157,8 +135,8 @@ export const ProsthesisSales = () => {
                     <td className="py-3 px-4 text-sm">{sale.client}</td>
                     <td className="py-3 px-4 text-sm">{sale.vendor}</td>
                     <td className="py-3 px-4 text-sm font-semibold">R$ {sale.value}</td>
-                    <td className="py-3 px-4 text-sm font-semibold">R$ {sale.sellerComm} ({sale.sellerPct})</td>
-                    <td className="py-3 px-4 text-sm font-semibold">R$ {sale.managerComm} ({sale.managerPct})</td>
+                    <td className="py-3 px-4 text-sm font-semibold">R$ {sale.sellerComm}</td>
+                    <td className="py-3 px-4 text-sm font-semibold">R$ {sale.managerComm}</td>
                   </tr>
                 ))}
               </tbody>

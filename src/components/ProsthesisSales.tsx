@@ -184,7 +184,7 @@ export const ProsthesisSales = () => {
   };
 
   const maintReminder = (s: Sale) =>
-    `Olá ${s.client}! ✂️\n\nPassando pra lembrar que sua prótese capilar está no prazo de manutenção (retoque a cada 30-45 dias garante longevidade e visual perfeito).\n\nQuer que eu já agende um horário essa semana? É só responder aqui. 🙌`;
+    `Olá ${s.client}! ✂️\n\nPassando pra lembrar que sua prótese capilar está no prazo de manutenção (retoque a cada 10-20 dias garante longevidade e visual perfeito).\n\nQuer que eu já agende um horário essa semana? É só responder aqui. 🙌`;
 
   const copyMaint = async (s: Sale) => {
     await navigator.clipboard.writeText(maintReminder(s));

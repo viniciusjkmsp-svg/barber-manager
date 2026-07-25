@@ -37,6 +37,37 @@ export const Layout = ({ children, activeTab, setActiveTab }: LayoutProps) => {
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+  const profiles = [
+    { initial: "M", name: "Marcos", role: "Proprietário", color: "#C9A84C" },
+    { initial: "S", name: "Silvia", role: "Sócia", color: "#a67dd4" },
+    { initial: "G", name: "Gerente", role: "Gerente", color: "#4caf7d" },
+    { initial: "R", name: "Recepção", role: "Recepção", color: "#4c9af5" },
+    { initial: "B", name: "Barbeiro", role: "Barbeiro", color: "#e05c5c" },
+    { initial: "Mk", name: "Marketing", role: "Marketing", color: "#e0a44c" },
+  ];
+  const [currentProfile, setCurrentProfile] = useState(() => {
+    if (typeof window === "undefined") return profiles[0];
+    const saved = localStorage.getItem("ms-profile");
+    if (saved) {
+      const found = profiles.find((p) => p.name === saved);
+      if (found) return found;
+    }
+    return profiles[0];
+  });
+  useEffect(() => {
+    localStorage.setItem("ms-profile", currentProfile.name);
+  }, [currentProfile]);
+  useEffect(() => {
+    const onDoc = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener("click", onDoc);
+    return () => document.removeEventListener("click", onDoc);
+  }, []);
   const [theme, setTheme] = useState<"dark" | "light">(() => {
     if (typeof window === "undefined") return "dark";
     return (localStorage.getItem("ms-theme") as "dark" | "light") || "dark";

@@ -43,11 +43,21 @@ export const Layout = ({ children, activeTab, setActiveTab }: LayoutProps) => {
               <Scissors className="w-6 h-6" />
               <span>Barbearia Estilo</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-primary-foreground/20 flex items-center justify-center">
-                <span className="text-sm">A</span>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-primary-foreground/20 flex items-center justify-center">
+                  <span className="text-sm">A</span>
+                </div>
+                <span className="text-sm">Administrador</span>
               </div>
-              <span className="text-sm">Administrador</span>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary-foreground/10 hover:bg-primary-foreground/20 transition-colors text-sm font-medium"
+                aria-label="Sair"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Sair</span>
+              </button>
             </div>
           </div>
         </div>

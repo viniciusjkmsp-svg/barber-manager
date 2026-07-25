@@ -457,18 +457,19 @@ export const ProsthesisSales = () => {
                 <Alert className="mb-3">
                   <Info className="h-4 w-4" />
                   <AlertDescription className="text-xs">
-                    Prazo recomendado: <b>30-45 dias</b> entre manutenções. Registre cada retoque pra manter a receita recorrente ativa.
+                    Toda venda de prótese entra automaticamente aqui. Prazo recomendado: <b>30-45 dias</b> entre manutenções.
                   </AlertDescription>
                 </Alert>
-                {sales.filter((s) => maintStatus(s).kind !== "ok").length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-6">Nenhuma manutenção pendente. 🎯</p>
+                {sales.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-6">Nenhum cliente de prótese cadastrado ainda.</p>
                 ) : (
                   <div className="space-y-2 max-h-[380px] overflow-y-auto">
-                    {salesSorted.filter((s) => maintStatus(s).kind !== "ok").map((s) => {
+                    {salesSorted.map((s) => {
                       const st = maintStatus(s);
                       const link = waMaint(s);
+                      const bgCls = st.kind === "overdue" ? "bg-destructive/5 border-destructive/30" : st.kind === "soon" ? "bg-warning/5 border-warning/30" : "bg-success/5 border-success/30";
                       return (
-                        <div key={s.id} className={`border rounded-md p-3 ${st.kind === "overdue" ? "bg-destructive/5 border-destructive/30" : "bg-warning/5 border-warning/30"}`}>
+                        <div key={s.id} className={`border rounded-md p-3 ${bgCls}`}>
                           <div className="flex items-center justify-between mb-2">
                             <div>
                               <div className="font-semibold text-sm">{s.client}</div>

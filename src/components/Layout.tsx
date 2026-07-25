@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   LayoutDashboard,
   Calendar,
@@ -18,6 +18,8 @@ import {
   Moon,
   ChevronsRight,
   ChevronsLeft,
+  ChevronDown,
+  Check,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";

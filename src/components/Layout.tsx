@@ -10,6 +10,14 @@ interface LayoutProps {
 }
 
 export const Layout = ({ children, activeTab, setActiveTab }: LayoutProps) => {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast.success("Sessão encerrada");
+    navigate("/login", { replace: true });
+  };
+
 
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },

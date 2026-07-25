@@ -24,6 +24,8 @@ export const DailyControl = () => {
   const [totalValue, setTotalValue] = useState<string>("");
   const [tip, setTip] = useState<string>("");
   const [client, setClient] = useState<string>("");
+  const [clientPhone, setClientPhone] = useState<string>("");
+  const [clientEmail, setClientEmail] = useState<string>("");
   const [payMethod, setPayMethod] = useState<string>("");
 
   const todayStr = () => new Date().toISOString().slice(0, 10);

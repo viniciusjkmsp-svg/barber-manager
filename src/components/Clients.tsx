@@ -44,7 +44,8 @@ const daysSince = (dateISO?: string) => {
 
 const lastVisitDate = (c: Client): string | undefined => {
   if (c.visits.length === 0) return undefined;
-  return c.visits.map((v) => v.date).sort().at(-1);
+  const dates = c.visits.map((v) => v.date).sort();
+  return dates[dates.length - 1];
 };
 
 const ticketMedio = (c: Client) => {

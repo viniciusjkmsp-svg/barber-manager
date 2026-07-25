@@ -281,7 +281,7 @@ export const ProsthesisSales = () => {
 
   return (
     <div>
-      <h2 className="text-3xl font-bold text-foreground mb-6">Prótese Capilar & Mentoria</h2>
+      <h2 className="text-3xl font-bold text-foreground mb-6">Vendas & Mentoria</h2>
 
       <Tabs defaultValue="vendas">
         <TabsList>

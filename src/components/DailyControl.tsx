@@ -85,21 +85,23 @@ export const DailyControl = () => {
     }
     const tipValue = parseFloat(tip.replace(",", ".")) || 0;
     const totalIn = numericValue + productsTotal + tipValue;
+    const payLabel = payMethod === "debito" ? "Débito" : payMethod === "credito" ? "Crédito" : "PIX";
     if (totalIn > 0) {
       addIncome({
         date: todayStr(),
-        description: `Atendimento ${client}${serviceType ? ` (${serviceType})` : ""}`,
+        description: `Atendimento ${client}${serviceType ? ` (${serviceType})` : ""} — ${payLabel}`,
         amount: totalIn,
       });
     }
     toast({
       title: "Atendimento registrado",
-      description: `${client} • ${brl(numericValue + productsTotal)} • Comissão ${brl(commission)}`,
+      description: `${client} • ${brl(numericValue + productsTotal)} • ${payLabel} • Comissão ${brl(commission)}`,
     });
     setItems([]);
     setClient("");
     setTotalValue("");
     setTip("");
+    setPayMethod("");
   };
 
   const criticalStock = products

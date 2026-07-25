@@ -1,4 +1,7 @@
-import { Scissors, LayoutDashboard, Calendar, CalendarDays, CalendarRange, Users, ShoppingCart, Package, CreditCard, CalendarCheck, UserPlus, DollarSign } from "lucide-react";
+import { Scissors, LayoutDashboard, Calendar, CalendarDays, CalendarRange, Users, ShoppingCart, Package, CreditCard, CalendarCheck, UserPlus, DollarSign, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface LayoutProps {
   children: React.ReactNode;

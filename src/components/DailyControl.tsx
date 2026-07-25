@@ -244,6 +244,7 @@ export const DailyControl = () => {
                     value={tip}
                     onChange={(e) => setTip(e.target.value)}
                   />
+                </div>
               </div>
 
               <div>
@@ -260,7 +261,6 @@ export const DailyControl = () => {
                 </Select>
               </div>
 
-              </div>
 
               <div className="bg-muted/50 p-3 rounded-md flex justify-between items-center">
                 <div className="text-sm">

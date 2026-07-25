@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   LayoutDashboard,
   Calendar,
@@ -18,6 +18,8 @@ import {
   Moon,
   ChevronsRight,
   ChevronsLeft,
+  ChevronDown,
+  Check,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,6 +37,37 @@ export const Layout = ({ children, activeTab, setActiveTab }: LayoutProps) => {
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+  const profiles = [
+    { initial: "M", name: "Marcos", role: "Proprietário", color: "#C9A84C" },
+    { initial: "S", name: "Silvia", role: "Sócia", color: "#a67dd4" },
+    { initial: "G", name: "Gerente", role: "Gerente", color: "#4caf7d" },
+    { initial: "R", name: "Recepção", role: "Recepção", color: "#4c9af5" },
+    { initial: "B", name: "Barbeiro", role: "Barbeiro", color: "#e05c5c" },
+    { initial: "Mk", name: "Marketing", role: "Marketing", color: "#e0a44c" },
+  ];
+  const [currentProfile, setCurrentProfile] = useState(() => {
+    if (typeof window === "undefined") return profiles[0];
+    const saved = localStorage.getItem("ms-profile");
+    if (saved) {
+      const found = profiles.find((p) => p.name === saved);
+      if (found) return found;
+    }
+    return profiles[0];
+  });
+  useEffect(() => {
+    localStorage.setItem("ms-profile", currentProfile.name);
+  }, [currentProfile]);
+  useEffect(() => {
+    const onDoc = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener("click", onDoc);
+    return () => document.removeEventListener("click", onDoc);
+  }, []);
   const [theme, setTheme] = useState<"dark" | "light">(() => {
     if (typeof window === "undefined") return "dark";
     return (localStorage.getItem("ms-theme") as "dark" | "light") || "dark";
@@ -148,39 +181,128 @@ export const Layout = ({ children, activeTab, setActiveTab }: LayoutProps) => {
             <Moon className="w-4 h-4" style={{ color: isLight ? "#888" : "#8a8a8a" }} />
           </button>
 
-          <div className="flex items-center gap-2">
-            <div
-              className="w-[30px] h-[30px] rounded-full flex items-center justify-center text-xs font-medium"
+          {/* Profile switcher */}
+          <div className="relative" ref={profileRef}>
+            <button
+              onClick={() => setProfileOpen((v) => !v)}
+              className="flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-lg transition-all"
               style={{
-                background: pick("#C9A84C22", "#e8e8e8"),
-                border: `1px solid ${pick("#C9A84C44", "#ccc")}`,
-                color: pick(GOLD, "#666"),
+                background: pick("rgba(255,255,255,0.04)", "rgba(0,0,0,0.04)"),
+                border: `0.5px solid ${pick("#2a2a2a", "#ddd")}`,
               }}
+              aria-label="Trocar perfil"
             >
-              A
-            </div>
-            <span
-              className="text-xs hidden sm:inline"
-              style={{ color: pick("#888", "#666") }}
-            >
-              Administrador
-            </span>
-          </div>
+              <div
+                className="w-[28px] h-[28px] rounded-full flex items-center justify-center text-[11px] font-semibold"
+                style={{
+                  background: `${currentProfile.color}22`,
+                  border: `1px solid ${currentProfile.color}44`,
+                  color: currentProfile.color,
+                }}
+              >
+                {currentProfile.initial}
+              </div>
+              <div className="hidden sm:flex flex-col items-start leading-tight">
+                <span className="text-[12px] font-medium" style={{ color: pick("#ddd", "#222") }}>
+                  {currentProfile.name}
+                </span>
+                <span className="text-[10px]" style={{ color: currentProfile.color }}>
+                  {currentProfile.role}
+                </span>
+              </div>
+              <ChevronDown
+                className="w-3.5 h-3.5 transition-transform"
+                style={{
+                  color: pick("#555", "#888"),
+                  transform: profileOpen ? "rotate(180deg)" : "rotate(0)",
+                }}
+              />
+            </button>
 
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors"
-            style={{
-              background: pick("rgba(255,255,255,0.06)", "rgba(0,0,0,0.05)"),
-              color: pick("#ccc", "#333"),
-            }}
-            aria-label="Sair"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Sair</span>
-          </button>
+            {profileOpen && (
+              <div
+                className="absolute right-0 top-[calc(100%+6px)] w-[220px] rounded-[10px] overflow-hidden z-50"
+                style={{
+                  background: pick("#161616", "#fff"),
+                  border: `0.5px solid ${pick("#2a2a2a", "#e0e0e0")}`,
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
+                }}
+              >
+                <div
+                  className="px-3 pt-2.5 pb-2"
+                  style={{ borderBottom: `0.5px solid ${pick("#1e1e1e", "#eee")}` }}
+                >
+                  <span
+                    className="text-[10px] uppercase tracking-[0.08em]"
+                    style={{ color: pick("#444", "#888") }}
+                  >
+                    Visualizar como
+                  </span>
+                </div>
+                {profiles.map((p) => {
+                  const active = p.name === currentProfile.name;
+                  return (
+                    <button
+                      key={p.name}
+                      onClick={() => {
+                        setCurrentProfile(p);
+                        setProfileOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2.5 transition-colors"
+                      style={{
+                        background: active
+                          ? `${p.color}12`
+                          : "transparent",
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!active)
+                          (e.currentTarget as HTMLButtonElement).style.background = pick("#1e1e1e", "#f2f2f2");
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!active)
+                          (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+                      }}
+                    >
+                      <div
+                        className="w-[28px] h-[28px] rounded-full flex items-center justify-center text-[11px] font-semibold flex-shrink-0"
+                        style={{ background: `${p.color}22`, color: p.color }}
+                      >
+                        {p.initial}
+                      </div>
+                      <div className="flex-1 text-left leading-tight">
+                        <div className="text-[12px]" style={{ color: pick("#ccc", "#222") }}>
+                          {p.name}
+                        </div>
+                        <div className="text-[10px]" style={{ color: pick("#555", "#888") }}>
+                          {p.role}
+                        </div>
+                      </div>
+                      {active && <Check className="w-3.5 h-3.5" style={{ color: p.color }} />}
+                    </button>
+                  );
+                })}
+                <div style={{ height: "0.5px", background: pick("#1e1e1e", "#eee") }} />
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 text-[12px] transition-colors"
+                  style={{ color: "#e05c5c" }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.background = pick("#1e1e1e", "#faeaea");
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+                  }}
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  Sair
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
+
+      {/* remove old topbar closing was here */}
 
       {/* MAIN */}
       <div className="flex flex-1 overflow-hidden relative">

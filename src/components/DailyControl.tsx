@@ -60,8 +60,8 @@ export const DailyControl = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!client || !serviceType || !professional) {
-      toast({ title: "Preencha cliente, serviço e profissional", variant: "destructive" });
+    if (!client || !serviceType || !professional || !payMethod) {
+      toast({ title: "Preencha cliente, serviço, profissional e forma de pagamento", variant: "destructive" });
       return;
     }
     // Validate stock before deducting anything

@@ -9,12 +9,14 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Plus, AlertTriangle, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useProducts, productStatus, brl } from "@/hooks/useProducts";
+import { useFinance, EXPENSE_CATEGORIES, type ExpenseCategory } from "@/hooks/useFinance";
 import { toast } from "@/hooks/use-toast";
 
 type SoldItem = { productId: string; quantity: number };
 
 export const DailyControl = () => {
   const { products, sellProduct } = useProducts();
+  const { addExpense, addIncome } = useFinance();
 
   const [items, setItems] = useState<SoldItem[]>([]);
   const [serviceType, setServiceType] = useState<string>("");
@@ -22,6 +24,12 @@ export const DailyControl = () => {
   const [totalValue, setTotalValue] = useState<string>("");
   const [tip, setTip] = useState<string>("");
   const [client, setClient] = useState<string>("");
+
+  const todayStr = () => new Date().toISOString().slice(0, 10);
+  const [expDate, setExpDate] = useState<string>(todayStr());
+  const [expDesc, setExpDesc] = useState<string>("");
+  const [expValue, setExpValue] = useState<string>("");
+  const [expCategory, setExpCategory] = useState<ExpenseCategory | "">("");
 
   const addItem = () => setItems([...items, { productId: "", quantity: 1 }]);
   const updateItem = (idx: number, patch: Partial<SoldItem>) =>
@@ -73,6 +81,15 @@ export const DailyControl = () => {
     for (const it of items) {
       if (!it.productId) continue;
       sellProduct(it.productId, it.quantity);
+    }
+    const tipValue = parseFloat(tip.replace(",", ".")) || 0;
+    const totalIn = numericValue + productsTotal + tipValue;
+    if (totalIn > 0) {
+      addIncome({
+        date: todayStr(),
+        description: `Atendimento ${client}${serviceType ? ` (${serviceType})` : ""}`,
+        amount: totalIn,
+      });
     }
     toast({
       title: "Atendimento registrado",
@@ -250,34 +267,48 @@ export const DailyControl = () => {
               <CardTitle>Lançar Despesa</CardTitle>
             </CardHeader>
             <CardContent>
-              <form className="space-y-4">
+              <form
+                className="space-y-4"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const amount = parseFloat(expValue.replace(",", ".")) || 0;
+                  if (!expDate || !expDesc || !amount || !expCategory) {
+                    toast({ title: "Preencha todos os campos da despesa", variant: "destructive" });
+                    return;
+                  }
+                  addExpense({ date: expDate, description: expDesc, amount, category: expCategory });
+                  toast({ title: "Despesa registrada", description: `${expDesc} • ${brl(amount)}` });
+                  setExpDesc("");
+                  setExpValue("");
+                  setExpCategory("");
+                }}
+              >
                 <div>
                   <Label htmlFor="dataDespesa">Data</Label>
-                  <Input type="date" id="dataDespesa" />
+                  <Input type="date" id="dataDespesa" value={expDate} onChange={(e) => setExpDate(e.target.value)} />
                 </div>
                 <div>
                   <Label htmlFor="descricaoDespesa">Descrição</Label>
-                  <Input id="descricaoDespesa" placeholder="Descrição da despesa" />
+                  <Input id="descricaoDespesa" placeholder="Descrição da despesa" value={expDesc} onChange={(e) => setExpDesc(e.target.value)} />
                 </div>
                 <div>
                   <Label htmlFor="valorDespesa">Valor (R$)</Label>
-                  <Input type="number" step="0.01" id="valorDespesa" placeholder="0,00" />
+                  <Input type="number" step="0.01" id="valorDespesa" placeholder="0,00" value={expValue} onChange={(e) => setExpValue(e.target.value)} />
                 </div>
                 <div>
                   <Label htmlFor="categoriaDespesa">Categoria</Label>
-                  <Select>
+                  <Select value={expCategory} onValueChange={(v) => setExpCategory(v as ExpenseCategory)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="despesas">Despesas Operacionais</SelectItem>
-                      <SelectItem value="folha">Folha de Pagamento</SelectItem>
-                      <SelectItem value="impostos">Impostos</SelectItem>
-                      <SelectItem value="outros">Outros</SelectItem>
+                      {EXPENSE_CATEGORIES.map((c) => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
-                <Button className="w-full">Registrar Despesa</Button>
+                <Button type="submit" className="w-full">Registrar Despesa</Button>
               </form>
             </CardContent>
           </Card>

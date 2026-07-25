@@ -138,6 +138,28 @@ export const DailyControl = () => {
                   <Label htmlFor="clienteAtendimento">Cliente</Label>
                   <Input id="clienteAtendimento" placeholder="Nome do cliente" value={client} onChange={(e) => setClient(e.target.value)} />
                 </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="telefoneAtendimento">Telefone / WhatsApp</Label>
+                    <Input
+                      id="telefoneAtendimento"
+                      type="tel"
+                      placeholder="(11) 99999-9999"
+                      value={clientPhone}
+                      onChange={(e) => setClientPhone(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="emailAtendimento">E-mail</Label>
+                    <Input
+                      id="emailAtendimento"
+                      type="email"
+                      placeholder="cliente@email.com"
+                      value={clientEmail}
+                      onChange={(e) => setClientEmail(e.target.value)}
+                    />
+                  </div>
+                </div>
                 <div>
                   <Label>Tipo de Serviço</Label>
                   <Select value={serviceType} onValueChange={setServiceType}>

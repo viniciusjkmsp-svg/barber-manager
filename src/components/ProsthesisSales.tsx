@@ -118,7 +118,11 @@ export const ProsthesisSales = () => {
     value: "",
     seller: "",
     installments: "1",
-    installmentsPaid: "1",
+    payMethod1: "pix" as PayMethod,
+    payAmount1: "",
+    useSecond: false,
+    payMethod2: "credito" as PayMethod,
+    payAmount2: "",
     notes: "",
   });
 
@@ -135,6 +139,16 @@ export const ProsthesisSales = () => {
       toast.error("Preencha cliente, valor e vendedor");
       return;
     }
+    const amt1Raw = parseFloat(saleForm.payAmount1.replace(",", ".")) || 0;
+    const amt2Raw = parseFloat(saleForm.payAmount2.replace(",", ".")) || 0;
+    const payAmount1 = saleForm.useSecond ? (amt1Raw || numeric / 2) : numeric;
+    const payAmount2 = saleForm.useSecond ? (amt2Raw || numeric - payAmount1) : undefined;
+
+    if (saleForm.useSecond && Math.abs((payAmount1 + (payAmount2 || 0)) - numeric) > 0.01) {
+      toast.error("A soma dos dois pagamentos precisa ser igual ao valor da venda");
+      return;
+    }
+
     const s: Sale = {
       id: crypto.randomUUID(),
       date: saleForm.date,
@@ -143,13 +157,17 @@ export const ProsthesisSales = () => {
       value: numeric,
       seller: saleForm.seller,
       installments: installmentsNum,
-      installmentsPaid: Math.min(parseInt(saleForm.installmentsPaid) || 1, installmentsNum),
+      installmentsPaid: 0,
+      payMethod1: saleForm.payMethod1,
+      payAmount1,
+      payMethod2: saleForm.useSecond ? saleForm.payMethod2 : undefined,
+      payAmount2,
       lastMaintenance: undefined,
       notes: saleForm.notes || undefined,
     };
     setSales((p) => [s, ...p]);
-    setSaleForm({ ...saleForm, client: "", whatsapp: "", value: "", notes: "" });
-    toast.success("Venda registrada");
+    setSaleForm({ ...saleForm, client: "", whatsapp: "", value: "", payAmount1: "", payAmount2: "", notes: "" });
+    toast.success("Venda registrada — cliente adicionado ao controle de manutenção");
   };
 
   const removeSale = (id: string) => setSales((p) => p.filter((s) => s.id !== id));

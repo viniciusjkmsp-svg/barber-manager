@@ -83,15 +83,7 @@ export const ProsthesisSales = () => {
               </div>
 
               <div className="grid grid-cols-1 gap-2 bg-muted/50 p-3 rounded-md">
-                <div className="flex justify-between text-sm">
-                  <span>Comissão Vendedor ({(sellerRate * 100).toFixed(0)}%)</span>
-                  <span className="font-semibold">{brl(sellerCommission)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Vinicius (Gestor {(MANAGER_RATE * 100).toFixed(0)}%) {seller === "vinicius" && "— não se aplica"}</span>
-                  <span className="font-semibold">{brl(managerCommission)}</span>
-                </div>
-                <div className="flex justify-between border-t pt-2 mt-1">
+                <div className="flex justify-between">
                   <span className="font-semibold">Total Comissões</span>
                   <span className="font-bold">{brl(totalCommissions)}</span>
                 </div>

@@ -35,6 +35,9 @@ const SELLER_LABELS: Record<string, string> = {
 const brl = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 // ---------- Types ----------
+type PayMethod = "debito" | "credito" | "pix";
+const PAY_LABELS: Record<PayMethod, string> = { debito: "Débito", credito: "Crédito", pix: "PIX" };
+
 type Sale = {
   id: string;
   date: string; // yyyy-mm-dd
@@ -44,6 +47,10 @@ type Sale = {
   seller: string; // key
   installments: number; // 1 = à vista
   installmentsPaid: number;
+  payMethod1: PayMethod;
+  payAmount1: number;
+  payMethod2?: PayMethod;
+  payAmount2?: number;
   lastMaintenance?: string; // yyyy-mm-dd
   notes?: string;
 };

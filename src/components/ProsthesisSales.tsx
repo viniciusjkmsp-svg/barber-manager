@@ -21,8 +21,8 @@ const SELLER_RATES: Record<string, number> = {
   outros: 0,
 };
 const MANAGER_RATE = 0.04;
-const MAINT_ALERT_DAYS = 30;
-const MAINT_OVERDUE_DAYS = 45;
+const MAINT_ALERT_DAYS = 10;
+const MAINT_OVERDUE_DAYS = 20;
 
 const SELLER_LABELS: Record<string, string> = {
   vinicius: "Vinicius",
@@ -184,7 +184,7 @@ export const ProsthesisSales = () => {
   };
 
   const maintReminder = (s: Sale) =>
-    `Olá ${s.client}! ✂️\n\nPassando pra lembrar que sua prótese capilar está no prazo de manutenção (retoque a cada 30-45 dias garante longevidade e visual perfeito).\n\nQuer que eu já agende um horário essa semana? É só responder aqui. 🙌`;
+    `Olá ${s.client}! ✂️\n\nPassando pra lembrar que sua prótese capilar está no prazo de manutenção (retoque a cada 10-20 dias garante longevidade e visual perfeito).\n\nQuer que eu já agende um horário essa semana? É só responder aqui. 🙌`;
 
   const copyMaint = async (s: Sale) => {
     await navigator.clipboard.writeText(maintReminder(s));
@@ -459,7 +459,7 @@ export const ProsthesisSales = () => {
                 <Alert className="mb-3">
                   <Info className="h-4 w-4" />
                   <AlertDescription className="text-xs">
-                    Toda venda de prótese entra automaticamente aqui. Prazo recomendado: <b>30-45 dias</b> entre manutenções.
+                    Toda venda de prótese entra automaticamente aqui. Prazo recomendado: <b>10-20 dias</b> entre manutenções.
                   </AlertDescription>
                 </Alert>
                 {sales.length === 0 ? (

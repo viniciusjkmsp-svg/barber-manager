@@ -459,7 +459,7 @@ export const ProsthesisSales = () => {
                 <Alert className="mb-3">
                   <Info className="h-4 w-4" />
                   <AlertDescription className="text-xs">
-                    Toda venda de prótese entra automaticamente aqui. Prazo recomendado: <b>30-45 dias</b> entre manutenções.
+                    Toda venda de prótese entra automaticamente aqui. Prazo recomendado: <b>10-20 dias</b> entre manutenções.
                   </AlertDescription>
                 </Alert>
                 {sales.length === 0 ? (

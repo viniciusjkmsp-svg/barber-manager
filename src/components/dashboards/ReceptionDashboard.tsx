@@ -1,14 +1,13 @@
 import { Card, StatusBadge, GOLD } from "./widgets";
 import { CheckCircle, Calendar, X, UserPlus, MessageCircle, DollarSign, Search } from "lucide-react";
+import { useMockData } from "@/hooks/mock/useMockData";
 
 export function ReceptionDashboard() {
-  const agenda = [
-    { hora: "09:00", cliente: "João Pereira", prof: "Kauan", servico: "Corte + Barba", status: "confirmed" as const },
-    { hora: "09:30", cliente: "Ana Paula", prof: "Silvia", servico: "Escova", status: "progress" as const },
-    { hora: "10:00", cliente: "Roberto", prof: "Cristiano", servico: "Corte", status: "pending" as const },
-    { hora: "10:30", cliente: "Marina", prof: "Silvia", servico: "Manicure", status: "confirmed" as const },
-    { hora: "11:00", cliente: "Débora", prof: "Kauan", servico: "Corte", status: "pending" as const },
-  ];
+  const data = useMockData();
+  const agenda = [...data.todayAppointments].sort((a, b) => a.time.localeCompare(b.time)).slice(0, 6);
+  const profName = (id: string) =>
+    data.professionals.find((p) => p.id === id)?.name.split(" ")[0] ?? id;
+  const pendConf = agenda.filter((a) => a.status === "pending");
 
   return (
     <div className="flex flex-col gap-4">
@@ -17,7 +16,6 @@ export function ReceptionDashboard() {
         <div className="text-xs text-muted-foreground">Agenda e atendimento</div>
       </div>
 
-      {/* Ações rápidas */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
         {[
           { icon: Calendar, label: "Novo agendamento" },
@@ -38,34 +36,26 @@ export function ReceptionDashboard() {
 
       <Card title="Agenda do dia">
         <div className="flex flex-col gap-2">
-          {agenda.map((a, i) => (
-            <div key={i} className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/40">
+          {agenda.map((a) => (
+            <div key={a.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/40">
               <div className="text-sm font-medium w-14" style={{ color: GOLD }}>
-                {a.hora}
+                {a.time}
               </div>
-              <div className="flex-1">
-                <div className="text-[13px]">{a.cliente}</div>
-                <div className="text-[11px] text-muted-foreground">
-                  {a.servico} · {a.prof}
+              <div className="flex-1 min-w-0">
+                <div className="text-[13px] truncate">{a.clientName}</div>
+                <div className="text-[11px] text-muted-foreground truncate">
+                  {a.service} · {profName(a.professionalId)}
                 </div>
               </div>
               <StatusBadge status={a.status} />
               <div className="hidden md:flex gap-1">
-                <button
-                  className="p-1.5 rounded hover:bg-muted"
-                  title="Confirmar"
-                  style={{ color: "#4caf7d" }}
-                >
+                <button className="p-1.5 rounded hover:bg-muted" title="Confirmar" style={{ color: "#4caf7d" }}>
                   <CheckCircle className="w-4 h-4" />
                 </button>
                 <button className="p-1.5 rounded hover:bg-muted" title="Reagendar">
                   <Calendar className="w-4 h-4" />
                 </button>
-                <button
-                  className="p-1.5 rounded hover:bg-muted"
-                  title="Cancelar"
-                  style={{ color: "#e05c5c" }}
-                >
+                <button className="p-1.5 rounded hover:bg-muted" title="Cancelar" style={{ color: "#e05c5c" }}>
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -95,18 +85,20 @@ export function ReceptionDashboard() {
         </Card>
         <Card title="Pendências">
           <div className="text-sm space-y-1.5">
-            <div>3 clientes sem confirmação</div>
-            <div>2 reagendamentos necessários</div>
-            <div>4 retornos do dia</div>
+            <div>{data.counts.pendentes} clientes sem confirmação</div>
+            <div>{data.counts.cancelados} reagendamentos necessários</div>
+            <div>{data.counts.inativos} retornos do mês</div>
           </div>
         </Card>
       </div>
 
       <Card title="WhatsApp — Confirmações pendentes">
         <div className="flex flex-col gap-2">
-          {["João Pereira - 09:00", "Roberto - 10:00", "Débora - 11:00"].map((c, i) => (
-            <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-muted/40">
-              <span className="text-[12px]">{c}</span>
+          {pendConf.map((a) => (
+            <div key={a.id} className="flex items-center justify-between p-2 rounded-lg bg-muted/40">
+              <span className="text-[12px]">
+                {a.clientName} - {a.time}
+              </span>
               <button
                 className="flex items-center gap-1 text-[11px] px-2.5 py-1 rounded"
                 style={{ background: "#4caf7d22", color: "#4caf7d" }}
@@ -115,6 +107,9 @@ export function ReceptionDashboard() {
               </button>
             </div>
           ))}
+          {pendConf.length === 0 && (
+            <div className="text-[12px] text-muted-foreground">Todas as confirmações estão em dia.</div>
+          )}
         </div>
       </Card>
     </div>

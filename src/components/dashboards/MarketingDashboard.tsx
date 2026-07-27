@@ -1,19 +1,23 @@
 import { useState } from "react";
 import { Card, StatCard, TabsBar, GOLD } from "./widgets";
 import { Flame, MessageCircle } from "lucide-react";
+import { useMockData } from "@/hooks/mock/useMockData";
+
+const LEAD_STATUS_LABEL: Record<string, string> = {
+  novo: "Novo",
+  contato: "Em contato",
+  qualificado: "Qualificado",
+  matriculado: "Matriculado",
+  perdido: "Perdido",
+};
 
 export function MarketingDashboard() {
-  const [adTab, setAdTab] = useState("protese");
-  const creativosProtese = [
-    { name: "Prótese - Depoimento Kauan", invest: 480, cpl: 11.4, cac: 62, hot: true },
-    { name: "Prótese - Antes/Depois v3", invest: 320, cpl: 11.4, cac: 58, hot: true },
-    { name: "Prótese - Story Reels", invest: 260, cpl: 18.5, cac: 84, hot: false },
-  ];
-  const creativosCursos = [
-    { name: "Curso - Aula Aberta", invest: 220, cpl: 7.1, cac: 42, hot: true },
-    { name: "Curso - Formados 2025", invest: 180, cpl: 10, cac: 65, hot: false },
-  ];
-  const criativos = adTab === "protese" ? creativosProtese : creativosCursos;
+  const [adTab, setAdTab] = useState<"protese" | "cursos">("protese");
+  const data = useMockData();
+  const criativos = data.ads.filter((a) => a.segment === adTab);
+  const invMes = data.ads.reduce((s, a) => s + a.invest, 0);
+  const cacMed = Math.round(data.ads.reduce((s, a) => s + a.cac, 0) / data.ads.length);
+  const leadsRecentes = data.leads.slice(0, 3);
 
   return (
     <div className="flex flex-col gap-4">
@@ -23,10 +27,10 @@ export function MarketingDashboard() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
-        <StatCard label="Leads hoje" value="18" sub="4 pendentes" tone="gold" />
+        <StatCard label="Leads hoje" value={data.counts.leadsHoje} sub={`${data.leads.filter((l) => l.status === "novo").length} pendentes`} tone="gold" />
         <StatCard label="Taxa de conversão" value="24%" sub="+3pp mês" tone="green" />
-        <StatCard label="Investimento mês" value="R$ 4.820" />
-        <StatCard label="CAC médio" value="R$ 68" tone="yellow" />
+        <StatCard label="Investimento mês" value={`R$ ${invMes.toLocaleString("pt-BR")}`} />
+        <StatCard label="CAC médio" value={`R$ ${cacMed}`} tone="yellow" />
       </div>
 
       <Card title="Anúncios em destaque">
@@ -36,13 +40,13 @@ export function MarketingDashboard() {
             { id: "cursos", label: "Cursos" },
           ]}
           active={adTab}
-          onChange={setAdTab}
+          onChange={(id) => setAdTab(id as "protese" | "cursos")}
         />
         <div className="flex flex-col gap-2">
-          {criativos.map((c, i) => (
-            <div key={i} className="flex items-center gap-3 p-2.5 rounded-lg border border-border bg-muted/30">
+          {criativos.map((c) => (
+            <div key={c.id} className="flex items-center gap-3 p-2.5 rounded-lg border border-border bg-muted/30">
               <div className="flex-1">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-[13px] font-medium">{c.name}</span>
                   {c.hot && (
                     <span
@@ -65,21 +69,17 @@ export function MarketingDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
         <Card title="Leads recentes">
           <div className="flex flex-col gap-2 text-sm">
-            {[
-              { nome: "Rodrigo M.", canal: "Meta - Prótese", status: "Novo" },
-              { nome: "Camila S.", canal: "Meta - Curso", status: "Em contato" },
-              { nome: "Diego P.", canal: "Instagram", status: "Qualificado" },
-            ].map((l, i) => (
-              <div key={i} className="flex items-center gap-2 p-2 rounded-lg bg-muted/40">
-                <div className="flex-1">
-                  <div className="text-[13px]">{l.nome}</div>
-                  <div className="text-[11px] text-muted-foreground">{l.canal}</div>
+            {leadsRecentes.map((l) => (
+              <div key={l.id} className="flex items-center gap-2 p-2 rounded-lg bg-muted/40">
+                <div className="flex-1 min-w-0">
+                  <div className="text-[13px] truncate">{l.name}</div>
+                  <div className="text-[11px] text-muted-foreground truncate">{l.channel}</div>
                 </div>
                 <span
                   className="text-[10px] px-2 py-0.5 rounded-full"
                   style={{ background: `${GOLD}22`, color: GOLD }}
                 >
-                  {l.status}
+                  {LEAD_STATUS_LABEL[l.status]}
                 </span>
               </div>
             ))}
@@ -87,19 +87,21 @@ export function MarketingDashboard() {
         </Card>
         <Card title="Follow up">
           <div className="flex flex-col gap-2 text-sm">
-            {["12 clientes para reengajar", "8 respostas pendentes WhatsApp", "5 aniversariantes semana"].map(
-              (t, i) => (
-                <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-muted/40">
-                  <span className="text-[12px]">{t}</span>
-                  <button
-                    className="flex items-center gap-1 text-[11px] px-2.5 py-1 rounded"
-                    style={{ background: "#4caf7d22", color: "#4caf7d" }}
-                  >
-                    <MessageCircle className="w-3 h-3" /> Enviar
-                  </button>
-                </div>
-              )
-            )}
+            {[
+              `${data.counts.inativos} clientes para reengajar`,
+              "8 respostas pendentes WhatsApp",
+              "5 aniversariantes semana",
+            ].map((t, i) => (
+              <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-muted/40">
+                <span className="text-[12px]">{t}</span>
+                <button
+                  className="flex items-center gap-1 text-[11px] px-2.5 py-1 rounded"
+                  style={{ background: "#4caf7d22", color: "#4caf7d" }}
+                >
+                  <MessageCircle className="w-3 h-3" /> Enviar
+                </button>
+              </div>
+            ))}
           </div>
         </Card>
       </div>
@@ -111,9 +113,9 @@ export function MarketingDashboard() {
             { nome: "Curso Turma Julho", perfil: "Cursos", budget: "R$ 800 / R$ 2.000", perf: "ROI 4.5x" },
           ].map((c, i) => (
             <div key={i} className="flex items-center gap-3 p-2 rounded-lg bg-muted/40">
-              <div className="flex-1">
-                <div className="text-[13px] font-medium">{c.nome}</div>
-                <div className="text-[11px] text-muted-foreground">
+              <div className="flex-1 min-w-0">
+                <div className="text-[13px] font-medium truncate">{c.nome}</div>
+                <div className="text-[11px] text-muted-foreground truncate">
                   {c.perfil} · {c.budget}
                 </div>
               </div>

@@ -32,6 +32,14 @@ const productsData = [
 ];
 
 const SELLER_COLORS = ["hsl(var(--primary))", "hsl(150, 60%, 45%)", "hsl(30, 90%, 55%)"];
+const BARBER_COLORS = [
+  "hsl(var(--primary))",
+  "hsl(150, 60%, 45%)",
+  "hsl(30, 90%, 55%)",
+  "hsl(280, 60%, 55%)",
+  "hsl(0, 70%, 55%)",
+  "hsl(200, 70%, 50%)",
+];
 
 // Agenda do dia - prótese e mentoria
 const agendaHoje = [
@@ -171,14 +179,24 @@ export const Dashboard = () => {
               <CardTitle>Faturamento por Barbeiro (Semana)</CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={barbersWeekData} layout="vertical" margin={{ left: 8, right: 8 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" tickFormatter={(v) => `R$${v}`} />
-                  <YAxis dataKey="name" type="category" width={70} tick={{ fontSize: 12 }} />
+              <ResponsiveContainer width="100%" height={260}>
+                <PieChart>
+                  <Pie
+                    data={barbersWeekData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, valor }) => `${name}: R$${valor}`}
+                    outerRadius={85}
+                    dataKey="valor"
+                  >
+                    {barbersWeekData.map((_, index) => (
+                      <Cell key={`barber-${index}`} fill={BARBER_COLORS[index % BARBER_COLORS.length]} />
+                    ))}
+                  </Pie>
                   <Tooltip formatter={(v: number) => `R$ ${v.toLocaleString("pt-BR")}`} />
-                  <Bar dataKey="valor" fill="hsl(var(--primary))" name="Faturamento" />
-                </BarChart>
+                  <Legend />
+                </PieChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>

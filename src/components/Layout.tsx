@@ -40,7 +40,7 @@ export const Layout = ({ children, activeTab, setActiveTab }: LayoutProps) => {
   };
 
   const NavList = ({ compact = false }: { compact?: boolean }) => (
-    <ul className="space-y-2">
+    <ul className="space-y-1.5">
       {navItems.map((item) => {
         const Icon = item.icon;
         const active = activeTab === item.id;
@@ -48,14 +48,14 @@ export const Layout = ({ children, activeTab, setActiveTab }: LayoutProps) => {
           <li key={item.id}>
             <button
               onClick={() => handleSelect(item.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left ${
+              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all text-left ${
                 active
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50"
+                  ? "bg-[#181818] text-[#C9A84C] border-l-2 border-[#C9A84C] font-semibold shadow-sm"
+                  : "text-zinc-400 hover:bg-[#141414] hover:text-zinc-200"
               }`}
             >
-              <Icon className="w-5 h-5 shrink-0" />
-              <span className="text-sm font-medium">{item.label}</span>
+              <Icon className={`w-5 h-5 shrink-0 ${active ? "text-[#C9A84C]" : "text-zinc-400"}`} />
+              <span className="text-sm">{item.label}</span>
             </button>
           </li>
         );
@@ -66,10 +66,10 @@ export const Layout = ({ children, activeTab, setActiveTab }: LayoutProps) => {
   const activeLabel = navItems.find((n) => n.id === activeTab)?.label ?? "";
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Navbar */}
-      <nav className="bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-lg sticky top-0 z-40">
-        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
+      <nav className="bg-[#0D0D0D] border-b border-[#1F1F1F] text-foreground shadow-lg sticky top-0 z-40">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-3.5">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
               {/* Mobile menu trigger */}
@@ -78,17 +78,19 @@ export const Layout = ({ children, activeTab, setActiveTab }: LayoutProps) => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="lg:hidden text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                    className="lg:hidden text-foreground hover:bg-[#1A1A1A] hover:text-[#C9A84C]"
                     aria-label="Abrir menu"
                   >
                     <Menu className="w-6 h-6" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="p-0 w-72 bg-sidebar text-sidebar-foreground border-sidebar-border">
-                  <div className="flex items-center justify-between px-4 py-4 border-b border-sidebar-border">
-                    <div className="flex items-center gap-2 font-bold">
-                      <Scissors className="w-5 h-5" />
-                      <span>Barbearia Estilo</span>
+                <SheetContent side="left" className="p-0 w-72 bg-[#0D0D0D] text-foreground border-[#1F1F1F]">
+                  <div className="flex items-center justify-between px-4 py-4 border-b border-[#1F1F1F]">
+                    <div className="flex items-center gap-2.5 font-bold">
+                      <div className="w-8 h-8 rounded-lg bg-[#141414] border border-[#262626] flex items-center justify-center">
+                        <Scissors className="w-4 h-4 text-[#C9A84C]" />
+                      </div>
+                      <span className="text-base text-foreground font-bold tracking-tight">Barber Manager</span>
                     </div>
                   </div>
                   <nav className="p-4 overflow-y-auto max-h-[calc(100vh-64px)]">
@@ -97,23 +99,25 @@ export const Layout = ({ children, activeTab, setActiveTab }: LayoutProps) => {
                 </SheetContent>
               </Sheet>
 
-              <div className="flex items-center gap-2 text-base sm:text-xl font-bold min-w-0">
-                <Scissors className="w-5 h-5 sm:w-6 sm:h-6 shrink-0" />
-                <span className="truncate">Barbearia Estilo</span>
+              <div className="flex items-center gap-2.5 text-base sm:text-xl font-bold min-w-0">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[#141414] border border-[#262626] flex items-center justify-center shrink-0">
+                  <Scissors className="w-4 h-4 sm:w-5 sm:h-5 text-[#C9A84C]" />
+                </div>
+                <span className="truncate text-foreground font-bold tracking-tight">Barber Manager</span>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-primary-foreground/20 flex items-center justify-center">
-                  <span className="text-sm">A</span>
+                <div className="w-8 h-8 rounded-full bg-[#181818] border border-[#C9A84C]/40 flex items-center justify-center text-[#C9A84C] font-semibold">
+                  <span className="text-xs">BM</span>
                 </div>
-                <span className="text-sm hidden sm:inline">Administrador</span>
+                <span className="text-sm hidden sm:inline text-zinc-300 font-medium">Administrador</span>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleLogout}
-                className="text-primary-foreground hover:bg-primary-foreground/20 flex items-center gap-1 px-2.5 py-1.5 h-8 text-xs font-medium"
+                className="text-zinc-400 hover:text-red-400 hover:bg-red-500/10 flex items-center gap-1.5 px-2.5 py-1.5 h-8 text-xs font-medium border border-transparent hover:border-red-500/20 transition-all"
                 title="Sair do sistema"
               >
                 <LogOut className="w-4 h-4" />
@@ -122,7 +126,7 @@ export const Layout = ({ children, activeTab, setActiveTab }: LayoutProps) => {
             </div>
           </div>
           {/* Mobile active section label */}
-          <div className="lg:hidden mt-2 text-xs opacity-80 truncate">
+          <div className="lg:hidden mt-2 text-xs text-[#C9A84C] font-medium truncate">
             {activeLabel}
           </div>
         </div>
@@ -130,14 +134,14 @@ export const Layout = ({ children, activeTab, setActiveTab }: LayoutProps) => {
 
       <div className="flex">
         {/* Sidebar - desktop only */}
-        <aside className="hidden lg:block w-64 min-h-[calc(100vh-64px)] bg-sidebar text-sidebar-foreground shadow-xl">
+        <aside className="hidden lg:block w-64 min-h-[calc(100vh-64px)] bg-[#0D0D0D] text-sidebar-foreground border-r border-[#1F1F1F] shadow-xl">
           <nav className="p-4">
             <NavList />
           </nav>
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0 bg-[#0A0A0A]">
           {children}
         </main>
       </div>

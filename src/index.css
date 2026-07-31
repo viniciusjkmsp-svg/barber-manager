@@ -8,26 +8,26 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 225 15% 15%;
+    --background: 0 0% 4%;
+    --foreground: 0 0% 96%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 225 15% 15%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 96%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 225 15% 15%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 96%;
 
-    --primary: 225 45% 10%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 44 53% 54%;
+    --primary-foreground: 0 0% 0%;
 
-    --secondary: 225 25% 25%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 0 0% 13%;
+    --secondary-foreground: 0 0% 96%;
 
-    --muted: 220 15% 95%;
-    --muted-foreground: 225 10% 45%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 60%;
 
-    --accent: 210 75% 30%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 44 53% 54%;
+    --accent-foreground: 0 0% 0%;
 
     --destructive: 0 75% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -35,31 +35,31 @@ All colors MUST be HSL.
     --success: 150 60% 45%;
     --success-foreground: 0 0% 100%;
 
-    --border: 220 15% 88%;
-    --input: 220 15% 88%;
-    --ring: 225 45% 10%;
+    --border: 0 0% 14%;
+    --input: 0 0% 14%;
+    --ring: 44 53% 54%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 225 35% 18%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 225 45% 10%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 75% 30%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 225 25% 25%;
-    --sidebar-ring: 210 75% 30%;
+    --sidebar-background: 0 0% 7%;
+    --sidebar-foreground: 0 0% 96%;
+    --sidebar-primary: 44 53% 54%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 0 0% 13%;
+    --sidebar-accent-foreground: 44 53% 54%;
+    --sidebar-border: 0 0% 14%;
+    --sidebar-ring: 44 53% 54%;
 
     /* Custom stats cards */
     --stats-entrada-from: 150 60% 45%;
     --stats-entrada-to: 165 55% 50%;
     --stats-saida-from: 355 75% 55%;
     --stats-saida-to: 340 70% 60%;
-    --stats-saldo-from: 210 75% 50%;
-    --stats-saldo-to: 195 70% 55%;
+    --stats-saldo-from: 44 53% 54%;
+    --stats-saldo-to: 40 60% 60%;
 
     /* Service badges */
-    --badge-corte: 195 75% 45%;
+    --badge-corte: 44 53% 54%;
     --badge-barba: 150 60% 45%;
     --badge-sobrancelha: 270 60% 55%;
     --badge-luzes: 30 90% 55%;

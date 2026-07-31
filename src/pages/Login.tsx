@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, Scissors } from "lucide-react";
 
 type Theme = "dark" | "light";
 const GOLD = "#C9A84C";
@@ -184,13 +184,10 @@ export default function Login() {
             alignItems: "center",
             justifyContent: "center",
             borderRadius: 12,
-            fontSize: 32,
-            fontWeight: 900,
-            letterSpacing: "-0.02em",
             marginBottom: 16,
           }}
         >
-          MS
+          <Scissors size={38} style={{ color: GOLD }} />
         </div>
         <h1
           className="ms-title"
@@ -202,7 +199,7 @@ export default function Login() {
             letterSpacing: "-0.01em",
           }}
         >
-          MS Manager
+          Barber Manager
         </h1>
 
         {/* Card */}

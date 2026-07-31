@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { Scissors, LayoutDashboard, Calendar, CalendarDays, CalendarRange, Users, ShoppingCart, Package, CreditCard, CalendarCheck, UserPlus, DollarSign, Menu, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Scissors, LayoutDashboard, Calendar, CalendarDays, CalendarRange, Users, ShoppingCart, Package, CreditCard, CalendarCheck, UserPlus, DollarSign, Menu, X, LogOut } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,7 +12,13 @@ interface LayoutProps {
 }
 
 export const Layout = ({ children, activeTab, setActiveTab }: LayoutProps) => {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/login", { replace: true });
+  };
 
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -94,11 +102,23 @@ export const Layout = ({ children, activeTab, setActiveTab }: LayoutProps) => {
                 <span className="truncate">Barbearia Estilo</span>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-primary-foreground/20 flex items-center justify-center">
-                <span className="text-sm">A</span>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-primary-foreground/20 flex items-center justify-center">
+                  <span className="text-sm">A</span>
+                </div>
+                <span className="text-sm hidden sm:inline">Administrador</span>
               </div>
-              <span className="text-sm hidden sm:inline">Administrador</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="text-primary-foreground hover:bg-primary-foreground/20 flex items-center gap-1 px-2.5 py-1.5 h-8 text-xs font-medium"
+                title="Sair do sistema"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Sair</span>
+              </Button>
             </div>
           </div>
           {/* Mobile active section label */}

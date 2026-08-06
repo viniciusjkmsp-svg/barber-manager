@@ -2,7 +2,162 @@
 // To take ownership, delete this banner line; the plugin then leaves the file alone.
 // supabase function: mcp
 // Bundled from src/lib/mcp/index.ts by @lovable.dev/mcp-js.
+// src/lib/mcp/index.ts
+import { auth, defineMcp } from "npm:@lovable.dev/mcp-js@0.24.0";
+
+// src/lib/mcp/tools/list-professionals.ts
+import { createClient } from "npm:@supabase/supabase-js@^2.110.8";
+import { defineTool } from "npm:@lovable.dev/mcp-js@0.24.0";
+import { z } from "npm:zod@^4.4.3";
+function sb(ctx) {
+  return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
+    global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
+    auth: { persistSession: false, autoRefreshToken: false }
+  });
+}
+var list_professionals_default = defineTool({
+  name: "list_professionals",
+  title: "Listar profissionais",
+  description: "Lista os profissionais da barbearia (barbeiros, manicures, etc.).",
+  inputSchema: {
+    only_active: z.boolean().default(true).describe("Retornar apenas profissionais ativos.")
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ only_active }, ctx) => {
+    if (!ctx.isAuthenticated()) {
+      return { content: [{ type: "text", text: "N\xE3o autenticado" }], isError: true };
+    }
+    let q = sb(ctx).from("professionals").select("id,name,role,is_active");
+    if (only_active) q = q.eq("is_active", true);
+    const { data, error } = await q.order("name");
+    if (error) return { content: [{ type: "text", text: error.message }], isError: true };
+    return {
+      content: [{ type: "text", text: JSON.stringify(data) }],
+      structuredContent: { professionals: data ?? [] }
+    };
+  }
+});
+
+// src/lib/mcp/tools/list-services.ts
+import { createClient as createClient2 } from "npm:@supabase/supabase-js@^2.110.8";
+import { defineTool as defineTool2 } from "npm:@lovable.dev/mcp-js@0.24.0";
+function sb2(ctx) {
+  return createClient2(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
+    global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
+    auth: { persistSession: false, autoRefreshToken: false }
+  });
+}
+var list_services_default = defineTool2({
+  name: "list_services",
+  title: "Listar servi\xE7os",
+  description: "Lista os servi\xE7os oferecidos com pre\xE7os e dura\xE7\xE3o.",
+  inputSchema: {},
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async (_input, ctx) => {
+    if (!ctx.isAuthenticated()) {
+      return { content: [{ type: "text", text: "N\xE3o autenticado" }], isError: true };
+    }
+    const { data, error } = await sb2(ctx).from("services").select("id,name,code,price,duration_minutes,is_active").eq("is_active", true).order("name");
+    if (error) return { content: [{ type: "text", text: error.message }], isError: true };
+    return {
+      content: [{ type: "text", text: JSON.stringify(data) }],
+      structuredContent: { services: data ?? [] }
+    };
+  }
+});
+
+// src/lib/mcp/tools/list-appointments.ts
+import { createClient as createClient3 } from "npm:@supabase/supabase-js@^2.110.8";
+import { defineTool as defineTool3 } from "npm:@lovable.dev/mcp-js@0.24.0";
+import { z as z2 } from "npm:zod@^4.4.3";
+function sb3(ctx) {
+  return createClient3(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
+    global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
+    auth: { persistSession: false, autoRefreshToken: false }
+  });
+}
+var list_appointments_default = defineTool3({
+  name: "list_appointments",
+  title: "Listar agendamentos",
+  description: "Lista agendamentos por intervalo de datas (formato YYYY-MM-DD).",
+  inputSchema: {
+    from: z2.string().describe("Data inicial YYYY-MM-DD (inclusiva)."),
+    to: z2.string().describe("Data final YYYY-MM-DD (inclusiva).")
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ from, to }, ctx) => {
+    if (!ctx.isAuthenticated()) {
+      return { content: [{ type: "text", text: "N\xE3o autenticado" }], isError: true };
+    }
+    const { data, error } = await sb3(ctx).from("appointments").select("id,appointment_date,appointment_time,status,total_price,notes,professional_id,service_id,client_id").gte("appointment_date", from).lte("appointment_date", to).order("appointment_date").order("appointment_time");
+    if (error) return { content: [{ type: "text", text: error.message }], isError: true };
+    return {
+      content: [{ type: "text", text: JSON.stringify(data) }],
+      structuredContent: { appointments: data ?? [] }
+    };
+  }
+});
+
+// src/lib/mcp/tools/create-appointment.ts
+import { createClient as createClient4 } from "npm:@supabase/supabase-js@^2.110.8";
+import { defineTool as defineTool4 } from "npm:@lovable.dev/mcp-js@0.24.0";
+import { z as z3 } from "npm:zod@^4.4.3";
+function sb4(ctx) {
+  return createClient4(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
+    global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
+    auth: { persistSession: false, autoRefreshToken: false }
+  });
+}
+var create_appointment_default = defineTool4({
+  name: "create_appointment",
+  title: "Criar agendamento",
+  description: "Cria um novo agendamento para um profissional e servi\xE7o.",
+  inputSchema: {
+    professional_id: z3.string().uuid(),
+    service_id: z3.string().uuid(),
+    appointment_date: z3.string().describe("Data YYYY-MM-DD."),
+    appointment_time: z3.string().describe("Hor\xE1rio HH:MM."),
+    client_id: z3.string().uuid().nullable().describe("ID do cliente (opcional)."),
+    notes: z3.string().nullable().describe("Observa\xE7\xF5es (opcional)."),
+    total_price: z3.number().nullable().describe("Valor total (opcional).")
+  },
+  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+  handler: async (input, ctx) => {
+    if (!ctx.isAuthenticated()) {
+      return { content: [{ type: "text", text: "N\xE3o autenticado" }], isError: true };
+    }
+    const { data, error } = await sb4(ctx).from("appointments").insert({
+      professional_id: input.professional_id,
+      service_id: input.service_id,
+      appointment_date: input.appointment_date,
+      appointment_time: input.appointment_time,
+      client_id: input.client_id ?? null,
+      notes: input.notes ?? null,
+      total_price: input.total_price ?? null,
+      status: "scheduled"
+    }).select().single();
+    if (error) return { content: [{ type: "text", text: error.message }], isError: true };
+    return {
+      content: [{ type: "text", text: JSON.stringify(data) }],
+      structuredContent: { appointment: data }
+    };
+  }
+});
+
+// src/lib/mcp/index.ts
+var projectRef = "arwazqrrgchevkhjoosy";
+var mcp_default = defineMcp({
+  name: "barbearia-estilo-mcp",
+  title: "Barbearia Estilo MCP",
+  version: "0.1.0",
+  instructions: "Ferramentas para a Barbearia Estilo. Permite listar profissionais, servi\xE7os, agendamentos e criar novos agendamentos.",
+  auth: auth.oauth.issuer({
+    issuer: `https://${projectRef}.supabase.co/auth/v1`,
+    acceptedAudiences: "authenticated"
+  }),
+  tools: [list_professionals_default, list_services_default, list_appointments_default, create_appointment_default]
+});
+
 // lovable-mcp-supabase-entry.ts
-import mcp from "npm:C:\\Users\\Vinicius\\Desktop\\Nova pasta (2)\\src\\lib\\mcp\\index.ts";
 import { createSupabaseHandler } from "npm:@lovable.dev/mcp-js@0.24.0/stacks/supabase";
-Deno.serve(createSupabaseHandler(mcp, { functionName: "mcp" }));
+Deno.serve(createSupabaseHandler(mcp_default, { functionName: "mcp" }));
